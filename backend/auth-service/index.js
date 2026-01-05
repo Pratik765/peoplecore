@@ -23,7 +23,7 @@ app.use(express.json());
 app.use("/api", router);
 
 //! Register
-app.post("/register", async (req, res) => {
+app.post("/api/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
@@ -46,7 +46,7 @@ app.post("/register", async (req, res) => {
 });
 
 //! Login
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -58,7 +58,7 @@ app.post("/login", async (req, res) => {
     if (!existingUser) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-    if (existingUser.status != "ACTIVE") {
+    if (existingUser.status != "ACCEPTED") {
       return res.status(403).json({ message: "Account pending approval" });
     }
     if (!existingUser.isActive) {
@@ -94,6 +94,56 @@ router.get("/admin/users", authorizeRoles("ADMIN"), async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+router.get(
+  "/admin/account-approval",
+  authorizeRoles("ADMIN"),
+  async (req, res) => {
+    try {
+      const pendingUsers = await user
+        .find({ status: "PENDING" })
+        .select("-password");
+      res.status(200).json({ pendingUsers, length: pendingUsers.length });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
+router.put(
+  "/admin/approve-user/:id",
+  authorizeRoles("ADMIN"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { role } = req.body;
+      if (!id || !role) {
+        return res.status(400).json({
+          message: "Id or role is not provided",
+        });
+      }
+      const allowedRoles = ["ADMIN", "HR", "EMPLOYEE"];
+      if (!allowedRoles.includes(role)) {
+        return res.status(400).json({
+          message: "Invalid role provided",
+        });
+      }
+
+      const updatedUser = await user
+        .findByIdAndUpdate(
+          id,
+          { role, status: "ACCEPTED" },
+          { new: true, runValidators: true }
+        )
+        .select("-password");
+      res
+        .status(200)
+        .json({ message: "User approved successfully", updatedUser });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
 
 app.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`);
