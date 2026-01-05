@@ -4,6 +4,7 @@ const app = express();
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 
 const connectDB = require("./config/db");
 const user = require("./models/user");
@@ -15,17 +16,18 @@ const PORT = process.env.PORT || 5001;
 connectDB();
 
 //! Middlewares
+app.use(cors());
+app.use(express.json());
 app.use((req, res, next) => {
   console.log(req.url, req.method);
   next();
 });
-app.use(express.json());
-app.use("/api", router);
 
 //! Register
 app.post("/api/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    console.log("Request body:", req.body);
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -85,6 +87,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 //! Protected routes
+app.use("/api", router);
 router.use(verifyToken);
 router.get("/admin/users", authorizeRoles("ADMIN"), async (req, res) => {
   try {
