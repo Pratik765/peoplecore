@@ -1,43 +1,94 @@
-import React from "react";
+import React, { useReducer } from "react";
+import { useDispatch } from "react-redux";
+import { userAction } from "../store/userSlice";
+import { useNavigate } from "react-router-dom";
+
+const reducer = (currentState, action) => {
+  switch (action.type) {
+    case "CHANGE": {
+      return { ...currentState, [action.payload.id]: action.payload.value };
+    }
+    default: {
+      return currentState;
+    }
+  }
+};
 
 function Login() {
+  const initialState = {
+    email: "",
+    password: "",
+  };
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const reduxDispatch = useDispatch();
+  const navigate = useNavigate();
+  const handleChange = (event) => {
+    const id = event.target.id;
+    const value = event.target.value;
+    dispatch({
+      type: "CHANGE",
+      payload: {
+        id,
+        value,
+      },
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const data = await fetch("http://localhost:5001/api/login", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(state),
+    });
+    const res = await data.json();
+    localStorage.setItem("token", `Bearer ${res.token}`);
+    reduxDispatch(userAction.loadUser(res));
+    navigate("/home");
+  };
   return (
-    <main class="form-signin w-50 m-auto">
-      <form>
-        <h1 class="h3 mb-3">Please sign in</h1>
-        <div class="form-floating my-3">
+    <main className="form-signin w-50 m-auto">
+      <form onSubmit={handleSubmit}>
+        <h1 className="h3 mb-3">Please sign in</h1>
+        <div className="form-floating my-3">
           <input
             type="email"
-            class="form-control"
-            id="floatingInput"
+            className="form-control"
+            id="email"
             placeholder="name@example.com"
+            value={state.email}
+            onChange={handleChange}
           />
-          <label for="floatingInput">Email address</label>
+          <label htmlFor="email">Email address</label>
         </div>
-        <div class="form-floating">
+        <div className="form-floating">
           <input
             type="password"
-            class="form-control"
-            id="floatingPassword"
+            className="form-control"
+            id="password"
             placeholder="Password"
+            value={state.password}
+            onChange={handleChange}
           />
-          <label for="floatingPassword">Password</label>
+          <label htmlFor="password">Password</label>
         </div>
-        <div class="form-check text-start my-3">
+        <div className="form-check text-start my-3">
           <input
-            class="form-check-input"
+            className="form-check-input"
             type="checkbox"
             value="remember-me"
             id="checkDefault"
           />
-          <label class="form-check-label" for="checkDefault">
+          <label className="form-check-label" htmlFor="checkDefault">
             Remember me
           </label>
         </div>
-        <button class="btn btn-primary w-100 py-2" type="submit">
-          Sign in
+        <button className="btn btn-primary w-100 py-2" type="submit">
+          Log in
         </button>
-        {/* <p class="mt-5 mb-3 text-body-secondary">© 2017–2025</p> */}
+        {/* <p className="mt-5 mb-3 text-body-secondary">© 2017–2025</p> */}
       </form>
     </main>
   );

@@ -52,58 +52,58 @@ function Signup() {
     }
   };
   return (
-    <main class="form-signin w-50 m-auto">
+    <main className="form-signin w-50 m-auto">
       <form onSubmit={handleSubmit}>
-        <h1 class="h3 mb-3">Please sign up</h1>
-        <div class="form-floating my-3">
+        <h1 className="h3 mb-3">Please sign up</h1>
+        <div className="form-floating my-3">
           <input
             type="text"
-            class="form-control"
+            className="form-control"
             id="name"
             placeholder="Jhon Doe"
             value={state.name}
             onChange={handleChange}
           />
-          <label for="floatingInput">Name</label>
+          <label htmlFor="floatingInput">Name</label>
         </div>
-        <div class="form-floating my-3">
+        <div className="form-floating my-3">
           <input
             type="email"
-            class="form-control"
+            className="form-control"
             id="email"
             placeholder="name@example.com"
             value={state.email}
             onChange={handleChange}
           />
-          <label for="floatingInput">Email address</label>
+          <label htmlFor="floatingInput">Email address</label>
         </div>
-        <div class="form-floating my-3">
+        <div className="form-floating my-3">
           <input
             type="password"
-            class="form-control"
+            className="form-control"
             id="password"
             placeholder="Password"
             value={state.password}
             onChange={handleChange}
           />
-          <label for="floatingPassword">Password</label>
+          <label htmlFor="floatingPassword">Password</label>
         </div>
-        <div class="form-floating my-3">
+        <div className="form-floating my-3">
           <input
             type="password"
-            class="form-control"
+            className="form-control"
             id="confirmPassword"
             placeholder="Confirm password"
             value={state.confirmPassword}
             onChange={handleChange}
           />
-          <label for="floatingPassword">Confirm password</label>
+          <label htmlFor="floatingPassword">Confirm password</label>
         </div>
 
-        <button class="btn btn-primary w-100 py-2" type="submit">
+        <button className="btn btn-primary w-100 py-2" type="submit">
           Sign up
         </button>
-        {/* <p class="mt-5 mb-3 text-body-secondary">© 2017–2025</p> */}
+        {/* <p className="mt-5 mb-3 text-body-secondary">© 2017–2025</p> */}
       </form>
     </main>
   );
