@@ -45,7 +45,7 @@ function Login() {
     });
     const res = await data.json();
     localStorage.setItem("token", `Bearer ${res.token}`);
-    reduxDispatch(userAction.loadUser(res));
+    reduxDispatch(userAction.login(res));
     navigate("/home");
   };
   return (

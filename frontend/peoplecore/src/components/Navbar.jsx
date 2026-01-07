@@ -1,11 +1,19 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { userAction } from "../store/userSlice";
 
 function Navbar() {
   const user = useSelector((store) => store.user);
+  const reduxDispatch = useDispatch();
+  const navigate = useNavigate();
   const handleLogout = () => {
-    localStorage.de
+    if (!localStorage.getItem("token")) {
+      navigate("/");
+    }
+    localStorage.removeItem("token");
+    reduxDispatch(userAction.logout());
+    navigate("/");
   };
   return (
     <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-2 border-bottom px-2 mb-5">

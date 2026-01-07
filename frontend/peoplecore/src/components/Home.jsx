@@ -3,9 +3,17 @@ import { useSelector } from "react-redux";
 
 function Home() {
   const user = useSelector((store) => store.user);
-  console.log(user);
+  const token = localStorage.getItem("token");
 
-  return <></>;
+  return (
+    <>
+      {token ? (
+        <center className="h3 mb-3">Hi, {user.user.name}</center>
+      ) : (
+        <center className="h3 mb-3">Please login first</center>
+      )}
+    </>
+  );
 }
 
 export default Home;
