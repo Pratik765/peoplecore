@@ -5,7 +5,6 @@ function Users() {
   const { state, error, loading } = useFetch(
     "http://localhost:5001/api/admin/users"
   );
-  console.log(state?.users);
   return (
     <>
       {loading && <h1>Loading</h1>}

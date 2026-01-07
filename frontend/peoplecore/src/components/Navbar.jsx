@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 
 function Navbar() {
   const user = useSelector((store) => store.user);
+  const handleLogout = () => {
+    localStorage.de
+  };
   return (
     <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-2 border-bottom px-2 mb-5">
       <div className="col-md-3 mb-2 mb-md-0">
@@ -66,8 +69,15 @@ function Navbar() {
           </Link>
         </div>
       ) : (
-        <div className="col-md-3 text-end">
+        <div className="d-flex align-items-center justify-content-end col-md-2 gap-2">
           <h6>{user.user?.name}</h6>
+          <button
+            type="button"
+            className="btn btn-danger btn-sm"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
         </div>
       )}
     </header>

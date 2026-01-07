@@ -125,6 +125,7 @@ router.put(
   async (req, res) => {
     try {
       const { id } = req.params;
+      console.log(req.body);
       const { role } = req.body;
       if (!id || !role) {
         return res.status(400).json({
@@ -149,6 +150,7 @@ router.put(
         .status(200)
         .json({ message: "User approved successfully", updatedUser });
     } catch (error) {
+      console.log(error.message);
       res.status(500).json({ message: "Internal server error" });
     }
   }
