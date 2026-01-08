@@ -1,0 +1,48 @@
+2026-01-08T10:28:29.124Z | OPTIONS /api/login | userId=anonymous | role=N/A | status=204 | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T10:28:29.267Z | POST /api/login | userId=anonymous | role=N/A | status=200 | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T10:42:00.437Z | OPTIONS /api/login | userId=anonymous | role=N/A | status=204 | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T10:42:00.541Z | POST /api/login | userId=anonymous | role=N/A | status=200 | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T11:17:18.524Z | GET //api/user/profile/1 | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T11:19:48.467Z | GET /api/user/profile/695b3a7e2890932240ab4f1 | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T11:20:03.015Z | GET /api/user/profile/695b3a7e2890932240ab4f11 | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T11:21:21.175Z | GET /api/user/profile/695b3a7e2890932240ab4f18 | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T11:21:50.949Z | GET /api/user/profile/695b3a7e2890932240ab4f18 | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T11:40:33.393Z | GET /api/user/profile/695b3a7e2890932240ab4f18 | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T11:47:07.571Z | GET /api/user/profile | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------
+2026-01-08T11:48:08.221Z | GET /api/user/profile/695b3a7e2890932240ab4f18 | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------
+2026-01-08T11:51:02.659Z | GET /api/user/profile/695b3a7e2890932240ab4f18 | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------
+2026-01-08T11:52:15.229Z | GET /api/user/profile/695b3a7e2890932240ab4f18 | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------
+2026-01-08T11:53:07.641Z | GET /api/user/profile/695b3a7e2890932240ab4f18 | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------
+2026-01-08T11:55:34.831Z | GET /api/user/profile/695b3a7e2890932240ab4f18 | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T11:56:39.149Z | GET /api/admin/users | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-01-08T11:57:33.761Z | GET /api/user/profile/695f526af13947af28a58a95 | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------
+2026-01-08T12:05:04.065Z | GET /api/user/profile/695f526af13947af28a58a95 | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------
+2026-01-08T12:16:05.192Z | GET /api/user/profile/695f526af13947af28a58a95 | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------
+2026-01-08T12:21:18.119Z | GET /api/user/profile/695f526af13947af28a58a95 | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------
+2026-01-08T12:22:21.438Z | GET /api/user/profile/695f526af13947af28a58a95 | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------
+2026-01-08T12:22:23.498Z | GET /api/user/profile/695f526af13947af28a58a95 | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------
+2026-01-08T12:22:51.024Z | GET /api/user/profile/695b3d49a5e5b41c4e2509a1 | userId=anonymous | role=N/A | status=undefined | ip=::ffff:127.0.0.1
+-----------------------------------------------------------------------

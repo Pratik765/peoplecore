@@ -10,12 +10,16 @@ const connectDB = require("./config/db");
 const user = require("./models/user");
 const verifyToken = require("./middleware/verifyToken");
 const authorizeRoles = require("./middleware/authorizeRoles");
+const requestLogger = require("./middleware/accessLogger");
+const errorLogger = require("./middleware/errorLogger");
 const PORT = process.env.PORT || 5001;
 
 //! Database connection
 connectDB();
 
 //! Middlewares
+app.use(requestLogger);
+app.use(errorLogger);
 app.use(cors());
 app.use(express.json());
 app.use((req, res, next) => {
@@ -92,96 +96,109 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-//! Protected routes
-app.use("/api", router);
-router.use(verifyToken);
-router.get("/admin/users", authorizeRoles("ADMIN"), async (req, res) => {
+app.get("/api/user/profile/:id", async (req, res) => {
   try {
-    const users = await user.find().select("-password");
-    res.status(200).json({ users, length: users.length });
+    const { id } = req.params;
+    const existingUser = await user.findById(id);
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(existingUser);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    res.status(5000).json({ message: "Internal server error" });
   }
 });
 
-router.get(
-  "/admin/account-approval",
-  authorizeRoles("ADMIN"),
-  async (req, res) => {
-    try {
-      const pendingUsers = await user
-        .find({ status: "PENDING" })
-        .select("-password");
-      res.status(200).json({ pendingUsers, length: pendingUsers.length });
-    } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
-    }
-  }
-);
+// //! Protected routes
+// app.use("/api", router);
+// router.use(verifyToken);
+// router.get("/admin/users", authorizeRoles("ADMIN"), async (req, res) => {
+//   try {
+//     const users = await user.find().select("-password");
+//     res.status(200).json({ users, length: users.length });
+//   } catch (error) {
+//     res.status(500).json({ message: "Internal server error" });
+//   }
+// });
 
-router.put(
-  "/admin/approve-user/:id",
-  authorizeRoles("ADMIN"),
-  async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { role } = req.body;
-      if (!id || !role) {
-        return res.status(400).json({
-          message: "Id or role is not provided",
-        });
-      }
-      const allowedRoles = ["ADMIN", "HR", "EMPLOYEE"];
-      if (!allowedRoles.includes(role)) {
-        return res.status(400).json({
-          message: "Invalid role provided",
-        });
-      }
+// router.get(
+//   "/admin/account-approval",
+//   authorizeRoles("ADMIN"),
+//   async (req, res) => {
+//     try {
+//       const pendingUsers = await user
+//         .find({ status: "PENDING" })
+//         .select("-password");
+//       res.status(200).json({ pendingUsers, length: pendingUsers.length });
+//     } catch (error) {
+//       res.status(500).json({ message: "Internal server error" });
+//     }
+//   }
+// );
 
-      const updatedUser = await user
-        .findByIdAndUpdate(
-          id,
-          { role, status: "ACCEPTED" },
-          { new: true, runValidators: true }
-        )
-        .select("-password");
-      res
-        .status(200)
-        .json({ message: "User approved successfully", updatedUser });
-    } catch (error) {
-      console.log(error.message);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  }
-);
+// router.put(
+//   "/admin/approve-user/:id",
+//   authorizeRoles("ADMIN"),
+//   async (req, res) => {
+//     try {
+//       const { id } = req.params;
+//       const { role } = req.body;
+//       if (!id || !role) {
+//         return res.status(400).json({
+//           message: "Id or role is not provided",
+//         });
+//       }
+//       const allowedRoles = ["ADMIN", "HR", "EMPLOYEE"];
+//       if (!allowedRoles.includes(role)) {
+//         return res.status(400).json({
+//           message: "Invalid role provided",
+//         });
+//       }
 
-router.put(
-  "/admin/reject-user/:id",
-  authorizeRoles("ADMIN"),
-  async (req, res) => {
-    try {
-      const { id } = req.params;
-      if (!id) {
-        return res.status(400).json({
-          message: "Id is not provided",
-        });
-      }
-      const updatedUser = await user
-        .findByIdAndUpdate(
-          id,
-          { status: "REJECTED" },
-          { new: true, runValidators: true }
-        )
-        .select("-password");
-      res
-        .status(200)
-        .json({ message: "Request rejected successfully", updatedUser });
-    } catch (error) {
-      console.log(error.message);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  }
-);
+//       const updatedUser = await user
+//         .findByIdAndUpdate(
+//           id,
+//           { role, status: "ACCEPTED" },
+//           { new: true, runValidators: true }
+//         )
+//         .select("-password");
+//       res
+//         .status(200)
+//         .json({ message: "User approved successfully", updatedUser });
+//     } catch (error) {
+//       console.log(error.message);
+//       res.status(500).json({ message: "Internal server error" });
+//     }
+//   }
+// );
+
+// router.put(
+//   "/admin/reject-user/:id",
+//   authorizeRoles("ADMIN"),
+//   async (req, res) => {
+//     try {
+//       const { id } = req.params;
+//       if (!id) {
+//         return res.status(400).json({
+//           message: "Id is not provided",
+//         });
+//       }
+//       const updatedUser = await user
+//         .findByIdAndUpdate(
+//           id,
+//           { status: "REJECTED" },
+//           { new: true, runValidators: true }
+//         )
+//         .select("-password");
+//       res
+//         .status(200)
+//         .json({ message: "Request rejected successfully", updatedUser });
+//     } catch (error) {
+//       console.log(error.message);
+//       res.status(500).json({ message: "Internal server error" });
+//     }
+//   }
+// );
 
 app.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`);
