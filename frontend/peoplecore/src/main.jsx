@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
@@ -11,30 +10,42 @@ import peopleCoreStore from "./store/peopleCoreStore.js";
 import Home from "./components/Home.jsx";
 import Users from "./components/Users.jsx";
 import PendingRequest from "./components/PendingRequest.jsx";
+import ProtectedRoute from "./routes/ProtectedRoute.jsx";
+import AdminRoute from "./routes/AdminRoute.jsx";
+import Unauthorized from "./components/Unauthorized.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
+      // Public routes
+      { path: "/", element: <Login /> },
+      { path: "/signup", element: <Signup /> },
+
+      // Protected routes (login required)
       {
-        path: "/",
-        element: <Login />,
+        element: <ProtectedRoute />,
+        children: [
+          { path: "/home", element: <Home /> },
+
+          // Admin-only routes
+          {
+            element: <AdminRoute />,
+            children: [
+              { path: "/users", element: <Users /> },
+              {
+                path: "/pending-request",
+                element: <PendingRequest />,
+              },
+            ],
+          },
+        ],
       },
+
+      // Unauthorized page
       {
-        path: "/signup",
-        element: <Signup />,
-      },
-      {
-        path: "/home",
-        element: <Home />,
-      },
-      {
-        path: "/users",
-        element: <Users />,
-      },
-      {
-        path: "/pending-request",
-        element: <PendingRequest />,
+        path: "/unauthorized",
+        element: <Unauthorized />,
       },
     ],
   },

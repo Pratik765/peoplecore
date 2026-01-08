@@ -125,7 +125,6 @@ router.put(
   async (req, res) => {
     try {
       const { id } = req.params;
-      console.log(req.body);
       const { role } = req.body;
       if (!id || !role) {
         return res.status(400).json({
@@ -149,6 +148,34 @@ router.put(
       res
         .status(200)
         .json({ message: "User approved successfully", updatedUser });
+    } catch (error) {
+      console.log(error.message);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
+router.put(
+  "/admin/reject-user/:id",
+  authorizeRoles("ADMIN"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({
+          message: "Id is not provided",
+        });
+      }
+      const updatedUser = await user
+        .findByIdAndUpdate(
+          id,
+          { status: "REJECTED" },
+          { new: true, runValidators: true }
+        )
+        .select("-password");
+      res
+        .status(200)
+        .json({ message: "Request rejected successfully", updatedUser });
     } catch (error) {
       console.log(error.message);
       res.status(500).json({ message: "Internal server error" });
