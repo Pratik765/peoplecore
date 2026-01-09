@@ -28,7 +28,14 @@ app.use((req, res, next) => {
 });
 
 //! Register
-app.post("/api/register", async (req, res) => {
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    service: "auth-service",
+    status: "UP",
+    timestamp: new Date().toLocaleString(),
+  });
+});
+app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
     console.log("Request body:", req.body);
@@ -52,7 +59,7 @@ app.post("/api/register", async (req, res) => {
 });
 
 //! Login
-app.post("/api/login", async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -96,7 +103,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-app.get("/api/user/profile/:id", async (req, res) => {
+app.get("/profile/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const existingUser = await user.findById(id);
@@ -108,97 +115,6 @@ app.get("/api/user/profile/:id", async (req, res) => {
     res.status(5000).json({ message: "Internal server error" });
   }
 });
-
-// //! Protected routes
-// app.use("/api", router);
-// router.use(verifyToken);
-// router.get("/admin/users", authorizeRoles("ADMIN"), async (req, res) => {
-//   try {
-//     const users = await user.find().select("-password");
-//     res.status(200).json({ users, length: users.length });
-//   } catch (error) {
-//     res.status(500).json({ message: "Internal server error" });
-//   }
-// });
-
-// router.get(
-//   "/admin/account-approval",
-//   authorizeRoles("ADMIN"),
-//   async (req, res) => {
-//     try {
-//       const pendingUsers = await user
-//         .find({ status: "PENDING" })
-//         .select("-password");
-//       res.status(200).json({ pendingUsers, length: pendingUsers.length });
-//     } catch (error) {
-//       res.status(500).json({ message: "Internal server error" });
-//     }
-//   }
-// );
-
-// router.put(
-//   "/admin/approve-user/:id",
-//   authorizeRoles("ADMIN"),
-//   async (req, res) => {
-//     try {
-//       const { id } = req.params;
-//       const { role } = req.body;
-//       if (!id || !role) {
-//         return res.status(400).json({
-//           message: "Id or role is not provided",
-//         });
-//       }
-//       const allowedRoles = ["ADMIN", "HR", "EMPLOYEE"];
-//       if (!allowedRoles.includes(role)) {
-//         return res.status(400).json({
-//           message: "Invalid role provided",
-//         });
-//       }
-
-//       const updatedUser = await user
-//         .findByIdAndUpdate(
-//           id,
-//           { role, status: "ACCEPTED" },
-//           { new: true, runValidators: true }
-//         )
-//         .select("-password");
-//       res
-//         .status(200)
-//         .json({ message: "User approved successfully", updatedUser });
-//     } catch (error) {
-//       console.log(error.message);
-//       res.status(500).json({ message: "Internal server error" });
-//     }
-//   }
-// );
-
-// router.put(
-//   "/admin/reject-user/:id",
-//   authorizeRoles("ADMIN"),
-//   async (req, res) => {
-//     try {
-//       const { id } = req.params;
-//       if (!id) {
-//         return res.status(400).json({
-//           message: "Id is not provided",
-//         });
-//       }
-//       const updatedUser = await user
-//         .findByIdAndUpdate(
-//           id,
-//           { status: "REJECTED" },
-//           { new: true, runValidators: true }
-//         )
-//         .select("-password");
-//       res
-//         .status(200)
-//         .json({ message: "Request rejected successfully", updatedUser });
-//     } catch (error) {
-//       console.log(error.message);
-//       res.status(500).json({ message: "Internal server error" });
-//     }
-//   }
-// );
 
 app.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`);
