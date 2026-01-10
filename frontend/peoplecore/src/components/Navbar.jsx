@@ -46,26 +46,6 @@ function Navbar() {
             </li>
           </>
         )}
-        <li>
-          <a href="#" className="nav-link px-2">
-            Features
-          </a>
-        </li>
-        <li>
-          <a href="#" className="nav-link px-2">
-            Pricing
-          </a>
-        </li>
-        <li>
-          <a href="#" className="nav-link px-2">
-            FAQs
-          </a>
-        </li>
-        <li>
-          <a href="#" className="nav-link px-2">
-            About
-          </a>
-        </li>
       </ul>
       {!user.user?.name ? (
         <div className="col-md-3 text-end">

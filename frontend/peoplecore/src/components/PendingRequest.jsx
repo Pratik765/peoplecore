@@ -10,7 +10,7 @@ function PendingRequest() {
 
   const loadData = () => {
     try {
-      fetch("http://localhost:5002/api/admin/account-approval", {
+      fetch("http://localhost:5000/pc/admin/account-approval", {
         headers: {
           Authorization: localStorage.getItem("token"),
         },
@@ -34,7 +34,7 @@ function PendingRequest() {
   const handleAccept = async (id, role) => {
     try {
       const response = await fetch(
-        `http://localhost:5002/api/admin/approve-user/${id}`,
+        `http://localhost:5000/pc/admin/approve-user/${id}`,
         {
           method: "PUT",
           headers: {
@@ -54,7 +54,7 @@ function PendingRequest() {
   const handleReject = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5002/api/admin/reject-user/${id}`,
+        `http://localhost:5000/pc/admin/reject-user/${id}`,
         {
           method: "PUT",
           headers: {

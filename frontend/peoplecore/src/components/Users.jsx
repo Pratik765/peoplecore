@@ -3,7 +3,7 @@ import useFetch from "../hooks/useFetch";
 
 function Users() {
   const { state, error, loading } = useFetch(
-    "http://localhost:5002/api/admin/users"
+    "http://localhost:5000/pc/admin/users"
   );
   return (
     <>

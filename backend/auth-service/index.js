@@ -27,7 +27,6 @@ app.use((req, res, next) => {
   next();
 });
 
-//! Register
 app.get("/health", (req, res) => {
   res.status(200).json({
     service: "auth-service",
@@ -35,6 +34,7 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toLocaleString(),
   });
 });
+//! Register
 app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
