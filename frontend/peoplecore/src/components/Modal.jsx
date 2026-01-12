@@ -41,7 +41,6 @@ function Modal({
         </div>
       </div>
 
-      {/* Backdrop */}
       <div className="modal-backdrop fade show"></div>
     </>
   );

@@ -148,7 +148,6 @@ function Signup() {
           <button className="btn btn-primary w-100 py-2" type="submit">
             Sign up
           </button>
-          {/* <p className="mt-5 mb-3 text-body-secondary">© 2017–2025</p> */}
         </form>
       </main>
     </>

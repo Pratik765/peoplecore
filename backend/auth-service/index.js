@@ -14,7 +14,6 @@ const requestLogger = require("./middleware/accessLogger");
 const errorLogger = require("./middleware/errorLogger");
 const PORT = process.env.PORT || 5001;
 
-//! Database connection
 connectDB();
 
 //! Middlewares
