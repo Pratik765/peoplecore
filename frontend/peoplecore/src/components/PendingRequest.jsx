@@ -42,7 +42,7 @@ function PendingRequest() {
             Authorization: localStorage.getItem("token"),
           },
           body: JSON.stringify({ role }),
-        }
+        },
       );
       const res = await response.json();
       console.log(res);
@@ -61,7 +61,7 @@ function PendingRequest() {
             "Content-Type": "application/json",
             Authorization: localStorage.getItem("token"),
           },
-        }
+        },
       );
       const res = await response.json();
       console.log(res);

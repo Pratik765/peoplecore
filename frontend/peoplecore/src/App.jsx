@@ -22,7 +22,7 @@ function App() {
               _id: decoded.userId,
               role: decoded.role,
             },
-          })
+          }),
         );
       } catch (err) {
         localStorage.removeItem("token");
@@ -33,7 +33,7 @@ function App() {
   return (
     <>
       <Navbar />
-      <Outlet />;
+      <Outlet />
     </>
   );
 }

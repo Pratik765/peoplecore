@@ -16,7 +16,7 @@ function Navbar() {
     navigate("/");
   };
   return (
-    <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-2 border-bottom px-2 mb-5">
+    <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-1 border-bottom px-2 mb-2">
       <div className="col-md-3 mb-2 mb-md-0">
         <a
           href="/"
@@ -26,12 +26,6 @@ function Navbar() {
         </a>
       </div>
       <ul className="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-        <li>
-          <a href="#" className="nav-link px-2 link-secondary">
-            Home
-          </a>
-        </li>
-
         {user.user?.role === "ADMIN" && (
           <>
             <li>
@@ -46,7 +40,27 @@ function Navbar() {
             </li>
           </>
         )}
+        {user.user?.role === "EMPLOYEE" && (
+          <>
+            <li>
+              <Link to="/leave" className="nav-link px-2">
+                Leave
+              </Link>
+            </li>
+            <li>
+              <Link to="/my-leaves" className="nav-link px-2">
+                My leaves
+              </Link>
+            </li>
+            <li>
+              <Link to="/profile" className="nav-link px-2">
+                Profile
+              </Link>
+            </li>
+          </>
+        )}
       </ul>
+
       {!user.user?.name ? (
         <div className="col-md-3 text-end">
           <Link to="/" type="button" className="btn btn-primary me-2">

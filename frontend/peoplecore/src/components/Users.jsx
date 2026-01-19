@@ -3,13 +3,13 @@ import useFetch from "../hooks/useFetch";
 
 function Users() {
   const { state, error, loading } = useFetch(
-    "http://localhost:5000/pc/admin/users"
+    "http://localhost:5000/pc/admin/users",
   );
   return (
     <>
       <div className="container">
-        <h3 className="h3 mb-3">All users</h3>
-        <p className=" mb-3">Total: {state.users.length}</p>
+        <h3 className="h3 mb-1">All users</h3>
+        <p className="mb-1">Total: {state.users.length}</p>
         <table className="table table-hover">
           <thead>
             <tr>

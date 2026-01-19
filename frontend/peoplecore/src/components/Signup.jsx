@@ -47,7 +47,7 @@ function Signup() {
         body: JSON.stringify(state),
       });
 
-      // const respJson = await res.json();
+      // const respJson = await res.json()
 
       if (!res.ok) {
         // backend error (409, 400, etc.)

@@ -13,6 +13,7 @@ import PendingRequest from "./components/PendingRequest.jsx";
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 import AdminRoute from "./routes/AdminRoute.jsx";
 import Unauthorized from "./components/Unauthorized.jsx";
+import Profile from "./components/Profile.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
       // Public routes
       { path: "/", element: <Login /> },
       { path: "/signup", element: <Signup /> },
+      { path: "/profile", element: <Profile /> },
 
       // Protected routes (login required)
       {
@@ -54,5 +56,5 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <Provider store={peopleCoreStore}>
     <RouterProvider router={router} />
-  </Provider>
+  </Provider>,
 );
