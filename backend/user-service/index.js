@@ -4,6 +4,8 @@ const connectDB = require("./config/db");
 const app = express();
 const user = require("./models/user");
 const verifyToken = require("./middleware/verifyToken");
+const cors = require("cors");
+app.use(cors());
 const PORT = process.env.PORT || 5004;
 //! Database connection
 connectDB();
