@@ -39,7 +39,7 @@ function Signup() {
 
   const handleSubmit = async () => {
     try {
-      const res = await fetch("http://localhost:5000/pc/auth/register", {
+      const res = await fetch("http://localhost:5001/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -57,7 +57,8 @@ function Signup() {
       }
 
       // success case
-      setLoginModal(true);
+      // setLoginModal(true);
+      navigate("/verify-otp");
     } catch (err) {
       console.log(err.message);
     }

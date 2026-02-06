@@ -10,7 +10,7 @@ function PendingRequest() {
 
   const loadData = () => {
     try {
-      fetch("http://localhost:5000/pc/admin/account-approval", {
+      fetch("http://localhost:5002/account-approval", {
         headers: {
           Authorization: localStorage.getItem("token"),
         },
@@ -33,17 +33,14 @@ function PendingRequest() {
   };
   const handleAccept = async (id, role) => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/pc/admin/approve-user/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: localStorage.getItem("token"),
-          },
-          body: JSON.stringify({ role }),
+      const response = await fetch(`http://localhost:5002/approve-user/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
         },
-      );
+        body: JSON.stringify({ role }),
+      });
       const res = await response.json();
       console.log(res);
       loadData();
@@ -53,16 +50,13 @@ function PendingRequest() {
   };
   const handleReject = async (id) => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/pc/admin/reject-user/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: localStorage.getItem("token"),
-          },
+      const response = await fetch(`http://localhost:5002/reject-user/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
         },
-      );
+      });
       const res = await response.json();
       console.log(res);
       loadData();

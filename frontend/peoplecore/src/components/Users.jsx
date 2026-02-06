@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import useFetch from "../hooks/useFetch";
 
 function Users() {
-  const { state, error, loading } = useFetch(
-    "http://localhost:5000/pc/admin/users",
-  );
+  const { state, error, loading } = useFetch("http://localhost:5002/users");
   return (
     <>
       <div className="container">

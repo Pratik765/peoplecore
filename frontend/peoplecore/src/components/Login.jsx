@@ -36,7 +36,7 @@ function Login() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = await fetch("http://localhost:5000/pc/auth/login", {
+    const data = await fetch("http://localhost:5001/login", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
