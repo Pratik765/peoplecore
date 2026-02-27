@@ -126,7 +126,7 @@ PeopleCore/
 Clone the repository
 
 ```
-git clone https://github.com/yourusername/peoplecore.git
+git clone https://github.com/Pratik765/peoplecore.git
 cd peoplecore
 ```
 
@@ -135,7 +135,7 @@ Install frontend dependencies
 ```
 cd frontend
 npm install
-npm start
+npm run dev
 ```
 
 Install backend dependencies (example)
@@ -143,7 +143,7 @@ Install backend dependencies (example)
 ```
 cd auth-service
 npm install
-npm run dev
+npm start
 ```
 
 Repeat for each service.
@@ -155,11 +155,9 @@ Repeat for each service.
 Create a `.env` file in each service.
 
 ```
-PORT=5000
-JWT_SECRET=your_secret_key
-DB_URI=your_database_connection
-EMAIL_USER=your_email
-EMAIL_PASS=your_password
+PORT=port_no
+MONGO_URI=mongo_db_uri
+JWT_SECRET=key
 ```
 
 ---
@@ -281,12 +279,11 @@ This project demonstrates:
 - Docker containerization
 - Kubernetes deployment
 - CI/CD pipeline
-- Logging and monitoring
+- Logging and monitoring -DONE
 
 ---
 
 ## Author
 
 Pratik Kamble  
-React JS Developer and Mentor  
-Full Stack Developer (MERN)
+MERN stack Developer and Trainer
