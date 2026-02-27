@@ -23,6 +23,7 @@ const router = createBrowserRouter([
       { path: "/", element: <Login /> },
       { path: "/signup", element: <Signup /> },
       { path: "/profile", element: <Profile /> },
+      { path: "/verify-otp", element: <Verif /> },
 
       // Protected routes (login required)
       {
