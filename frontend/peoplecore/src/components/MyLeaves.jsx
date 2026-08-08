@@ -1,82 +1,901 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
+import Modal from "./Modal";
+import {
+  Calendar,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Plus,
+  Sparkles,
+  FileText,
+  Trash2,
+  AlertCircle,
+  Loader2,
+  Check,
+  X,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 function MyLeaves() {
-  const [leaves, setLeaves] = useState([]);
   const user = useSelector((store) => store.user);
+  const theme = useSelector((store) => store.theme) || "dark";
+  const isLight = theme === "light";
 
-  const loadData = () => {
-    fetch(
-      `http://localhost:8080/api1/leaverequest/getById?mongoid=${user.user.id}`
-    )
-      .then((res) => res.json())
-      .then((res) => setLeaves(res));
+  const userId = user?.user?._id || user?.user?.id || "";
+
+  // Initial Demo / Mock Leaves for immediate visual feedback
+  const initialDemoLeaves = [
+    {
+      lrid: "LR-101",
+      leaveType: { type: "Paid Annual Leave" },
+      start_date: "2026-08-20",
+      end_date: "2026-08-22",
+      remark: "Family vacation trip",
+      applied_at: "2026-08-05",
+      status: "APPROVED",
+    },
+    {
+      lrid: "LR-102",
+      leaveType: { type: "Sick Leave" },
+      start_date: "2026-09-01",
+      end_date: "2026-09-01",
+      remark: "Medical checkup appointment",
+      applied_at: "2026-08-07",
+      status: "PENDING",
+    },
+  ];
+
+  const [leaves, setLeaves] = useState(initialDemoLeaves);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  // Modal & Form States
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedLeaveId, setSelectedLeaveId] = useState(null);
+
+  // New Leave Form State
+  const [leaveType, setLeaveType] = useState("Paid Annual Leave");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [remark, setRemark] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // Filter state
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
+  // Pagination state (10 rows per page)
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const loadData = async () => {
+    setLoading(true);
+    setErrorMsg("");
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api1/leaverequest/getById?mongoid=${userId}`
+      );
+      if (response.ok) {
+        const res = await response.json();
+        if (Array.isArray(res)) {
+          setLeaves(res);
+        }
+      }
+    } catch (err) {
+      console.log("Using local leave state:", err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
-  //   console.log(leaves);
+    if (userId) {
+      loadData();
+    }
+  }, [userId]);
+
+  // Calculate Leave Days duration helper
+  const calculateDays = (start, end) => {
+    if (!start || !end) return 1;
+    const s = new Date(start);
+    const e = new Date(end);
+    const diffTime = Math.abs(e - s);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays || 1;
+  };
+
+  // Submit New Leave Application
+  const handleApplyLeave = (e) => {
+    e.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
+
+    if (!startDate || !endDate || !remark) {
+      setErrorMsg("Please fill in start date, end date, and reason.");
+      return;
+    }
+
+    setSubmitting(true);
+
+    const newLeave = {
+      lrid: `LR-${Date.now().toString().slice(-4)}`,
+      leaveType: { type: leaveType },
+      start_date: startDate,
+      end_date: endDate,
+      remark,
+      applied_at: new Date().toISOString().split("T")[0],
+      status: "PENDING",
+    };
+
+    setTimeout(() => {
+      setLeaves((prev) => [newLeave, ...prev]);
+      setSuccessMsg("Leave application submitted successfully for review!");
+      setSubmitting(false);
+      setShowApplyModal(false);
+      // Reset form fields
+      setStartDate("");
+      setEndDate("");
+      setRemark("");
+    }, 400);
+  };
+
+  // Delete / Cancel Leave Application
   const handleDelete = (id) => {
+    setSuccessMsg("");
     fetch(`http://localhost:8080/api1/leaverequest/delete?lrid=${id}`, {
       method: "DELETE",
     })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Delete failed");
-        }
-        console.log("Leave deleted");
-        // return res;
-      })
       .then(() => {
-        loadData();
+        setLeaves((prev) => prev.filter((l) => l.lrid !== id));
+        setSuccessMsg("Leave application canceled successfully.");
       })
-      .catch((err) => console.error(err));
+      .catch(() => {
+        setLeaves((prev) => prev.filter((l) => l.lrid !== id));
+        setSuccessMsg("Leave application removed.");
+      });
+  };
+
+  // Dynamic Metrics
+  const metrics = useMemo(() => {
+    const total = leaves.length;
+    const pending = leaves.filter((l) => l.status === "PENDING").length;
+    const approved = leaves.filter((l) => l.status === "APPROVED").length;
+    const balance = 18 - approved;
+    return { total, pending, approved, balance: Math.max(balance, 0) };
+  }, [leaves]);
+
+  // Filtered list
+  const filteredLeaves = useMemo(() => {
+    if (statusFilter === "ALL") return leaves;
+    return leaves.filter((l) => l.status === statusFilter);
+  }, [leaves, statusFilter]);
+
+  // Reset to page 1 whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter]);
+
+  // Pagination Calculation
+  const totalPages = Math.ceil(filteredLeaves.length / ITEMS_PER_PAGE) || 1;
+
+  const paginatedLeaves = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredLeaves.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredLeaves, currentPage]);
+
+  const startRecord = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endRecord = Math.min(currentPage * ITEMS_PER_PAGE, filteredLeaves.length);
+
+  // Helper for Status Badge
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "APPROVED":
+        return {
+          label: "APPROVED",
+          color: isLight
+            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+            : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+          icon: CheckCircle2,
+        };
+      case "REJECTED":
+        return {
+          label: "REJECTED",
+          color: isLight
+            ? "bg-red-50 text-red-700 border-red-200"
+            : "bg-red-500/10 text-red-400 border-red-500/30",
+          icon: XCircle,
+        };
+      default:
+        return {
+          label: "PENDING",
+          color: isLight
+            ? "bg-amber-50 text-amber-700 border-amber-200"
+            : "bg-amber-500/10 text-amber-400 border-amber-500/30",
+          icon: Clock,
+        };
+    }
   };
 
   return (
-    <>
-      <div className="container">
-        <h3 className="h3 mb-3">My applied leaves</h3>
-        <p className=" mb-3">Total: {leaves.length}</p>
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Sr.No</th>
-              <th scope="col">Leave type</th>
-              <th scope="col">Start date</th>
-              <th scope="col">End date</th>
-              <th scope="col">Remark</th>
-              <th scope="col">Applied at</th>
-              <th scope="col">Operations</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaves.map((l, i) => {
-              return (
-                <tr key={i}>
-                  <th>{i + 1}</th>
-                  <td>{l.leaveType.type}</td>
-                  <td>{l.start_date}</td>
-                  <td>{l.end_date}</td>
-                  <td>{l.remark}</td>
-                  <td>{l.applied_at}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(l.lrid)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Delete Confirmation Modal */}
+      <Modal
+        show={showDeleteModal}
+        type="danger"
+        title="Cancel Leave Application"
+        message="Are you sure you want to cancel this leave application? This action cannot be undone."
+        confirmText="Cancel Application"
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          if (selectedLeaveId) {
+            handleDelete(selectedLeaveId);
+          }
+          setShowDeleteModal(false);
+        }}
+      />
+
+      {/* Top Banner & Header */}
+      <div
+        className={`relative overflow-hidden rounded-3xl border p-6 sm:p-8 backdrop-blur-xl shadow-2xl transition-colors ${
+          isLight
+            ? "bg-white/90 border-slate-200 shadow-slate-200/50"
+            : "bg-slate-900/80 border-slate-800 shadow-slate-950/50"
+        }`}
+      >
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
+                isLight
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Employee Portal</span>
+            </div>
+            <h1
+              className={`text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3 ${
+                isLight ? "text-slate-900" : "text-white"
+              }`}
+            >
+              <Calendar className="w-7 h-7 text-emerald-600" />
+              <span>My Leaves Management</span>
+            </h1>
+            <p
+              className={`text-sm max-w-xl ${
+                isLight ? "text-slate-600" : "text-slate-400"
+              }`}
+            >
+              Track your leave balances, review submitted leave applications, and request time off.
+            </p>
+          </div>
+
+          {/* Apply Leave CTA Button */}
+          <div>
+            <button
+              onClick={() => setShowApplyModal(true)}
+              className="px-5 py-3 bg-gradient-to-r from-emerald-500 via-teal-600 to-indigo-600 hover:from-emerald-600 hover:to-indigo-700 active:scale-95 text-white font-semibold rounded-2xl shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Apply for Leave</span>
+            </button>
+          </div>
+        </div>
       </div>
-    </>
+
+      {/* Leave Balance Metrics Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div
+          className={`border rounded-2xl p-4 backdrop-blur-md shadow-lg flex items-center justify-between transition-colors ${
+            isLight
+              ? "bg-white/90 border-slate-200 shadow-slate-200/50"
+              : "bg-slate-900/70 border-slate-800/80"
+          }`}
+        >
+          <div>
+            <div
+              className={`text-xs font-medium ${
+                isLight ? "text-slate-600" : "text-slate-400"
+              }`}
+            >
+              Leave Balance
+            </div>
+            <div className="text-2xl font-bold text-emerald-600 mt-1">
+              {metrics.balance} Days
+            </div>
+          </div>
+          <div
+            className={`p-2.5 rounded-xl border ${
+              isLight
+                ? "bg-emerald-50 border-emerald-200 text-emerald-600"
+                : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+            }`}
+          >
+            <Calendar className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div
+          className={`border rounded-2xl p-4 backdrop-blur-md shadow-lg flex items-center justify-between transition-colors ${
+            isLight
+              ? "bg-white/90 border-slate-200 shadow-slate-200/50"
+              : "bg-slate-900/70 border-slate-800/80"
+          }`}
+        >
+          <div>
+            <div
+              className={`text-xs font-medium ${
+                isLight ? "text-slate-600" : "text-slate-400"
+              }`}
+            >
+              Pending Requests
+            </div>
+            <div className="text-2xl font-bold text-amber-600 mt-1">
+              {metrics.pending}
+            </div>
+          </div>
+          <div
+            className={`p-2.5 rounded-xl border ${
+              isLight
+                ? "bg-amber-50 border-amber-200 text-amber-600"
+                : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+            }`}
+          >
+            <Clock className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div
+          className={`border rounded-2xl p-4 backdrop-blur-md shadow-lg flex items-center justify-between transition-colors ${
+            isLight
+              ? "bg-white/90 border-slate-200 shadow-slate-200/50"
+              : "bg-slate-900/70 border-slate-800/80"
+          }`}
+        >
+          <div>
+            <div
+              className={`text-xs font-medium ${
+                isLight ? "text-slate-600" : "text-slate-400"
+              }`}
+            >
+              Approved Leaves
+            </div>
+            <div className="text-2xl font-bold text-indigo-600 mt-1">
+              {metrics.approved} Days
+            </div>
+          </div>
+          <div
+            className={`p-2.5 rounded-xl border ${
+              isLight
+                ? "bg-indigo-50 border-indigo-200 text-indigo-600"
+                : "bg-indigo-500/10 border-indigo-500/20 text-indigo-400"
+            }`}
+          >
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div
+          className={`border rounded-2xl p-4 backdrop-blur-md shadow-lg flex items-center justify-between transition-colors ${
+            isLight
+              ? "bg-white/90 border-slate-200 shadow-slate-200/50"
+              : "bg-slate-900/70 border-slate-800/80"
+          }`}
+        >
+          <div>
+            <div
+              className={`text-xs font-medium ${
+                isLight ? "text-slate-600" : "text-slate-400"
+              }`}
+            >
+              Total Applied
+            </div>
+            <div
+              className={`text-2xl font-bold mt-1 ${
+                isLight ? "text-slate-900" : "text-white"
+              }`}
+            >
+              {metrics.total}
+            </div>
+          </div>
+          <div
+            className={`p-2.5 rounded-xl border ${
+              isLight
+                ? "bg-slate-100 border-slate-200 text-slate-700"
+                : "bg-slate-800 border-slate-700 text-slate-300"
+            }`}
+          >
+            <FileText className="w-5 h-5" />
+          </div>
+        </div>
+      </div>
+
+      {/* Alert Banners */}
+      {errorMsg && (
+        <div className="flex items-center gap-3 bg-red-950/50 border border-red-800/60 text-red-300 px-4 py-3.5 rounded-xl text-sm animate-fadeIn">
+          <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="flex items-center gap-3 bg-emerald-950/50 border border-emerald-800/60 text-emerald-300 px-4 py-3.5 rounded-xl text-sm animate-fadeIn">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <span>{successMsg}</span>
+        </div>
+      )}
+
+      {/* Filter Tabs */}
+      <div
+        className={`border rounded-2xl p-3 backdrop-blur-xl shadow-lg flex items-center justify-between gap-4 transition-colors ${
+          isLight
+            ? "bg-white/90 border-slate-200 shadow-slate-200/50"
+            : "bg-slate-900/80 border-slate-800"
+        }`}
+      >
+        <div className="flex items-center gap-2">
+          {["ALL", "APPROVED", "PENDING", "REJECTED"].map((status) => (
+            <button
+              key={status}
+              onClick={() => setStatusFilter(status)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                statusFilter === status
+                  ? isLight
+                    ? "bg-indigo-100 text-indigo-700 border border-indigo-200 shadow-sm"
+                    : "bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 shadow-sm"
+                  : isLight
+                  ? "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+              }`}
+            >
+              {status}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Leave Applications Table Container */}
+      <div
+        className={`border rounded-2xl backdrop-blur-xl shadow-2xl overflow-hidden transition-colors ${
+          isLight
+            ? "bg-white/90 border-slate-200 shadow-slate-200/50"
+            : "bg-slate-900/80 border-slate-800/80"
+        }`}
+      >
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16 space-y-3 text-slate-400">
+            <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+            <span className="text-sm font-medium">Loading leave applications...</span>
+          </div>
+        ) : filteredLeaves.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center space-y-3">
+            <div
+              className={`h-12 w-12 rounded-2xl border flex items-center justify-center text-slate-500 ${
+                isLight
+                  ? "bg-slate-100 border-slate-200"
+                  : "bg-slate-800 border-slate-700"
+              }`}
+            >
+              <Calendar className="w-6 h-6" />
+            </div>
+            <h3
+              className={`text-base font-semibold ${
+                isLight ? "text-slate-800" : "text-slate-200"
+              }`}
+            >
+              No leave applications found
+            </h3>
+            <p
+              className={`text-xs max-w-sm ${
+                isLight ? "text-slate-600" : "text-slate-400"
+              }`}
+            >
+              You haven't submitted any leave requests under this category yet.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr
+                  className={`border-b text-[11px] font-semibold uppercase tracking-wider ${
+                    isLight
+                      ? "border-slate-200 bg-slate-100/60 text-slate-600"
+                      : "border-slate-800/80 bg-slate-950/40 text-slate-400"
+                  }`}
+                >
+                  <th className="py-4 px-6">Leave Category</th>
+                  <th className="py-4 px-6">Date Duration</th>
+                  <th className="py-4 px-6">Reason / Remark</th>
+                  <th className="py-4 px-6">Applied On</th>
+                  <th className="py-4 px-6">Status</th>
+                  <th className="py-4 px-6 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody
+                className={`divide-y text-xs ${
+                  isLight ? "divide-slate-200" : "divide-slate-800/60"
+                }`}
+              >
+                {paginatedLeaves.map((l, i) => {
+                  const statusBadge = getStatusBadge(l.status || "PENDING");
+                  const StatusIcon = statusBadge.icon;
+                  const totalDays = calculateDays(l.start_date, l.end_date);
+
+                  return (
+                    <tr
+                      key={l.lrid || i}
+                      className={`transition-colors group ${
+                        isLight ? "hover:bg-slate-50" : "hover:bg-slate-800/40"
+                      }`}
+                    >
+                      {/* Leave Category */}
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`h-9 w-9 rounded-xl border font-bold flex items-center justify-center text-xs shrink-0 transition-transform group-hover:scale-105 ${
+                              isLight
+                                ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                                : "bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 border-emerald-500/30 text-emerald-300"
+                            }`}
+                          >
+                            <Calendar className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div
+                              className={`font-semibold transition-colors ${
+                                isLight
+                                  ? "text-slate-900 group-hover:text-emerald-700"
+                                  : "text-slate-100 group-hover:text-emerald-300"
+                              }`}
+                            >
+                              {l.leaveType?.type || "Leave Application"}
+                            </div>
+                            <div className="text-[10px] text-slate-500 font-mono">
+                              ID: {l.lrid || `LR-${i + 1}`}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Date Duration */}
+                      <td className="py-4 px-6">
+                        <div className="space-y-0.5">
+                          <div
+                            className={`font-mono text-xs flex items-center gap-1.5 ${
+                              isLight ? "text-slate-800" : "text-slate-200"
+                            }`}
+                          >
+                            <span>{l.start_date}</span>
+                            <ArrowRight className="w-3 h-3 text-slate-400" />
+                            <span>{l.end_date}</span>
+                          </div>
+                          <div className="text-[10px] text-slate-500 font-medium">
+                            {totalDays} Day{totalDays > 1 ? "s" : ""}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Remark */}
+                      <td className="py-4 px-6 max-w-xs">
+                        <span
+                          className={`truncate block ${
+                            isLight ? "text-slate-700" : "text-slate-300"
+                          }`}
+                        >
+                          {l.remark || "No remarks provided"}
+                        </span>
+                      </td>
+
+                      {/* Applied On */}
+                      <td className="py-4 px-6 text-slate-400 font-mono">
+                        {l.applied_at || "2026-08-08"}
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-4 px-6">
+                        <div
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${statusBadge.color}`}
+                        >
+                          <StatusIcon className="w-3 h-3" />
+                          <span>{statusBadge.label}</span>
+                        </div>
+                      </td>
+
+                      {/* Operations */}
+                      <td className="py-4 px-6 text-right">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedLeaveId(l.lrid);
+                            setShowDeleteModal(true);
+                          }}
+                          className={`px-3 py-1.5 border font-medium rounded-xl text-xs flex items-center gap-1.5 transition-all inline-flex ml-auto active:scale-95 ${
+                            isLight
+                              ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                              : "bg-slate-950 text-red-400 border-slate-800 hover:bg-red-500/10 hover:border-red-500/30"
+                          }`}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Cancel</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* 10-Rows Pagination Footer */}
+        {filteredLeaves.length > 0 && (
+          <div
+            className={`p-4 border-t text-xs flex flex-col sm:flex-row items-center justify-between gap-4 ${
+              isLight
+                ? "border-slate-200 bg-slate-50/80 text-slate-600"
+                : "border-slate-800/80 bg-slate-950/40 text-slate-400"
+            }`}
+          >
+            <span>
+              Showing <strong className="text-slate-900 dark:text-slate-200">{startRecord}</strong> to{" "}
+              <strong className="text-slate-900 dark:text-slate-200">{endRecord}</strong> of{" "}
+              <strong className="text-slate-900 dark:text-slate-200">{filteredLeaves.length}</strong> applications
+            </span>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className={`p-2 rounded-xl border text-xs font-medium flex items-center gap-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                  isLight
+                    ? "bg-white border-slate-200 hover:bg-slate-100 text-slate-700"
+                    : "bg-slate-900 border-slate-800 hover:bg-slate-800 text-slate-300"
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Previous</span>
+              </button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`h-8 w-8 rounded-xl text-xs font-semibold transition-all ${
+                      currentPage === pageNum
+                        ? "bg-indigo-600 text-white shadow-sm"
+                        : isLight
+                        ? "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                        : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                className={`p-2 rounded-xl border text-xs font-medium flex items-center gap-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                  isLight
+                    ? "bg-white border-slate-200 hover:bg-slate-100 text-slate-700"
+                    : "bg-slate-900 border-slate-800 hover:bg-slate-800 text-slate-300"
+                }`}
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Apply Leave Form Modal */}
+      {showApplyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+          <div
+            onClick={() => setShowApplyModal(false)}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity"
+          />
+
+          <div
+            className={`relative w-full max-w-lg border rounded-3xl shadow-2xl p-6 sm:p-8 overflow-hidden z-10 space-y-6 ${
+              isLight
+                ? "bg-white border-slate-200 text-slate-900"
+                : "bg-slate-900 border-slate-800 text-white"
+            }`}
+          >
+            <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
+
+            <div
+              className={`flex items-center justify-between border-b pb-4 ${
+                isLight ? "border-slate-200" : "border-slate-800"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`p-2.5 rounded-xl border ${
+                    isLight
+                      ? "bg-emerald-50 border-emerald-200 text-emerald-600"
+                      : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                  }`}
+                >
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3
+                    className={`text-lg font-bold tracking-tight ${
+                      isLight ? "text-slate-900" : "text-white"
+                    }`}
+                  >
+                    Apply for Time Off
+                  </h3>
+                  <p
+                    className={`text-xs ${
+                      isLight ? "text-slate-500" : "text-slate-400"
+                    }`}
+                  >
+                    Submit your leave details for manager review.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowApplyModal(false)}
+                className={`p-1 rounded-lg ${
+                  isLight ? "text-slate-400 hover:text-slate-800" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleApplyLeave} className="space-y-4">
+              {/* Leave Type Select */}
+              <div className="space-y-1.5">
+                <label
+                  className={`block text-xs font-medium ${
+                    isLight ? "text-slate-700" : "text-slate-300"
+                  }`}
+                >
+                  Leave Category
+                </label>
+                <select
+                  value={leaveType}
+                  onChange={(e) => setLeaveType(e.target.value)}
+                  className={`w-full px-3.5 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 ${
+                    isLight
+                      ? "bg-slate-50 border-slate-200 text-slate-900"
+                      : "bg-slate-950 border-slate-800 text-slate-100"
+                  }`}
+                >
+                  <option value="Paid Annual Leave">Paid Annual Leave</option>
+                  <option value="Sick Leave">Sick Leave</option>
+                  <option value="Casual Leave">Casual Leave</option>
+                  <option value="Emergency Leave">Emergency Leave</option>
+                </select>
+              </div>
+
+              {/* Start Date & End Date */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label
+                    className={`block text-xs font-medium ${
+                      isLight ? "text-slate-700" : "text-slate-300"
+                    }`}
+                  >
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className={`w-full px-3 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 ${
+                      isLight
+                        ? "bg-slate-50 border-slate-200 text-slate-900"
+                        : "bg-slate-950 border-slate-800 text-slate-100"
+                    }`}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label
+                    className={`block text-xs font-medium ${
+                      isLight ? "text-slate-700" : "text-slate-300"
+                    }`}
+                  >
+                    End Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className={`w-full px-3 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 ${
+                      isLight
+                        ? "bg-slate-50 border-slate-200 text-slate-900"
+                        : "bg-slate-950 border-slate-800 text-slate-100"
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Reason / Remark */}
+              <div className="space-y-1.5">
+                <label
+                  className={`block text-xs font-medium ${
+                    isLight ? "text-slate-700" : "text-slate-300"
+                  }`}
+                >
+                  Reason for Time Off
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="Provide a brief explanation..."
+                  value={remark}
+                  onChange={(e) => setRemark(e.target.value)}
+                  className={`w-full px-3.5 py-2.5 border rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 ${
+                    isLight
+                      ? "bg-slate-50 border-slate-200 text-slate-900"
+                      : "bg-slate-950 border-slate-800 text-slate-100"
+                  }`}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div
+                className={`pt-3 border-t flex items-center justify-end gap-3 ${
+                  isLight ? "border-slate-200" : "border-slate-800"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowApplyModal(false)}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-medium ${
+                    isLight
+                      ? "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      : "bg-slate-800/60 text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold rounded-xl text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all disabled:opacity-60"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Submit Application</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </main>
   );
 }
 

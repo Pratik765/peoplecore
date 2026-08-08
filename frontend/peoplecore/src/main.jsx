@@ -1,7 +1,6 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./components/Login.jsx";
 import Signup from "./components/Signup.jsx";
@@ -14,6 +13,8 @@ import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 import AdminRoute from "./routes/AdminRoute.jsx";
 import Unauthorized from "./components/Unauthorized.jsx";
 import Profile from "./components/Profile.jsx";
+import VerifyOtp from "./components/VerifyOtp.jsx";
+import MyLeaves from "./components/MyLeaves.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -23,13 +24,14 @@ const router = createBrowserRouter([
       { path: "/", element: <Login /> },
       { path: "/signup", element: <Signup /> },
       { path: "/profile", element: <Profile /> },
-      { path: "/verify-otp", element: <Verif /> },
+      { path: "/verify-otp", element: <VerifyOtp /> },
 
       // Protected routes (login required)
       {
         element: <ProtectedRoute />,
         children: [
           { path: "/home", element: <Home /> },
+          { path: "/my-leaves", element: <MyLeaves /> },
 
           // Admin-only routes
           {
