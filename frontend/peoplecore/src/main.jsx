@@ -15,6 +15,8 @@ import Unauthorized from "./components/Unauthorized.jsx";
 import Profile from "./components/Profile.jsx";
 import VerifyOtp from "./components/VerifyOtp.jsx";
 import MyLeaves from "./components/MyLeaves.jsx";
+import Notifications from "./components/Notifications.jsx";
+import Announcements from "./components/Announcements.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -32,6 +34,8 @@ const router = createBrowserRouter([
         children: [
           { path: "/home", element: <Home /> },
           { path: "/my-leaves", element: <MyLeaves /> },
+          { path: "/notifications", element: <Notifications /> },
+          { path: "/announcements", element: <Announcements /> },
 
           // Admin-only routes
           {

@@ -53,9 +53,11 @@ function PendingRequest() {
       }
 
       const res = await response.json();
-      setPendingList(res);
+      const list = Array.isArray(res) ? res : res.pendingUsers || [];
+      setPendingList(list);
     } catch (err) {
       setErrorMsg(err.message || "Error fetching pending requests.");
+      setPendingList([]);
     } finally {
       setLoading(false);
     }
@@ -65,15 +67,16 @@ function PendingRequest() {
     loadData();
   }, []);
 
-  const totalPages = Math.ceil(pendingList.length / ITEMS_PER_PAGE) || 1;
+  const listArray = Array.isArray(pendingList) ? pendingList : [];
+  const totalPages = Math.ceil(listArray.length / ITEMS_PER_PAGE) || 1;
 
   const paginatedPendingList = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return pendingList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    return listArray.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [pendingList, currentPage]);
 
   const startRecord = (currentPage - 1) * ITEMS_PER_PAGE + 1;
-  const endRecord = Math.min(currentPage * ITEMS_PER_PAGE, pendingList.length);
+  const endRecord = Math.min(currentPage * ITEMS_PER_PAGE, listArray.length);
 
   const handleRoleChange = (id, role) => {
     setPendingList((prev) =>

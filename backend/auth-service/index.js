@@ -18,7 +18,6 @@ connectDB();
 
 //! Middlewares
 app.use(requestLogger);
-app.use(errorLogger);
 app.use(cors());
 app.use(express.json());
 app.use((req, res, next) => {
@@ -98,7 +97,8 @@ app.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Login Error:", error);
+    res.status(500).json({ message: "Internal server error: " + error.message });
   }
 });
 
@@ -111,9 +111,11 @@ app.get("/profile/:id", async (req, res) => {
     }
     res.status(200).json(existingUser);
   } catch (error) {
-    res.status(5000).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
 });
+
+app.use(errorLogger);
 
 app.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`);

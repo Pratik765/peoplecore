@@ -10,8 +10,9 @@ function AdminRoute() {
     return <Navigate to="/" replace />;
   }
 
-  //  User loaded but NOT admin → BLOCK
-  if (user && user.role !== "ADMIN") {
+  // User loaded but NOT admin or HR → BLOCK
+  const allowedRoles = ["ADMIN", "HR"];
+  if (user && !allowedRoles.includes(user.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
 

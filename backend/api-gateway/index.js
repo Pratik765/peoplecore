@@ -16,18 +16,31 @@ app.use((req, res, next) => {
 app.use(
   "/pc/auth",
   createProxyMiddleware({
-    target: process.env.AUTH_SERVICE_URL,
+    target: process.env.AUTH_SERVICE_URL || "http://localhost:5001",
     changeOrigin: true,
   })
 );
 app.use(
   "/pc/admin",
   createProxyMiddleware({
-    target: process.env.ADMIN_SERVICE_URL,
+    target: process.env.ADMIN_SERVICE_URL || "http://localhost:5002",
     changeOrigin: true,
   })
 );
-// app.use("/admin", verifyToken, userProxy);
+app.use(
+  "/pc/user",
+  createProxyMiddleware({
+    target: process.env.USER_SERVICE_URL || "http://localhost:5004",
+    changeOrigin: true,
+  })
+);
+app.use(
+  "/pc/notification",
+  createProxyMiddleware({
+    target: process.env.NOTIFICATION_SERVICE_URL || "http://localhost:5005",
+    changeOrigin: true,
+  })
+);
 
 app.get("/health", (req, res) => {
   res.status(200).json({

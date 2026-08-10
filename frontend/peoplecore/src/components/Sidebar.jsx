@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { userAction } from "../store/userSlice";
 import { themeAction } from "../store/themeSlice";
+import NotificationBell from "./NotificationBell";
 import {
   Users,
   LayoutDashboard,
@@ -19,6 +20,8 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  Bell,
+  Megaphone,
 } from "lucide-react";
 
 function Sidebar() {
@@ -105,6 +108,18 @@ function Sidebar() {
       path: "/my-leaves",
       icon: Calendar,
       roles: ["EMPLOYEE"],
+    },
+    {
+      label: "Notifications",
+      path: "/notifications",
+      icon: Bell,
+      roles: ["ADMIN", "HR", "EMPLOYEE"],
+    },
+    {
+      label: "Announcements",
+      path: "/announcements",
+      icon: Megaphone,
+      roles: ["ADMIN", "HR", "EMPLOYEE"],
     },
     {
       label: "My Profile",
@@ -283,84 +298,20 @@ function Sidebar() {
           </div>
         </div>
 
-        {/* Bottom Section: Theme Switcher & User Profile */}
+        {/* Clean Sidebar Footer */}
         <div
-          className={`p-4 border-t space-y-3 transition-colors ${
+          className={`p-4 border-t text-xs transition-colors ${
             isLight
-              ? "border-slate-200 bg-slate-50/80"
-              : "border-slate-800/80 bg-slate-950/40"
+              ? "border-slate-200 bg-slate-50/80 text-slate-500"
+              : "border-slate-800/80 bg-slate-950/40 text-slate-500"
           }`}
         >
-          {/* Theme Switcher Button */}
-          <button
-            type="button"
-            onClick={handleToggleTheme}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium border transition-all group ${
-              isLight
-                ? "bg-white text-slate-800 border-slate-200 hover:bg-slate-100 shadow-sm"
-                : "bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800"
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              {isLight ? (
-                <Sun className="w-4 h-4 text-amber-500" />
-              ) : (
-                <Moon className="w-4 h-4 text-indigo-400" />
-              )}
-              <span>Theme: {isLight ? "Light Mode" : "Dark Mode"}</span>
-            </div>
-            <span
-              className={`text-[10px] px-2 py-0.5 rounded-full font-semibold transition-colors ${
-                isLight
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "bg-slate-800 text-indigo-300 group-hover:bg-indigo-600/30"
-              }`}
-            >
-              Switch
+          <div className="flex items-center justify-between text-[11px]">
+            <span>PeopleCore v1.0</span>
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              Online
             </span>
-          </button>
-
-          {/* User Profile Footer */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 min-w-0">
-              <div
-                className={`h-9 w-9 rounded-xl border flex items-center justify-center text-xs font-bold shrink-0 ${
-                  isLight
-                    ? "bg-indigo-100 border-indigo-200 text-indigo-700"
-                    : "bg-slate-800 border-slate-700 text-indigo-300"
-                }`}
-              >
-                {userName.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span
-                  className={`text-xs font-semibold truncate ${
-                    isLight ? "text-slate-900" : "text-slate-200"
-                  }`}
-                >
-                  {userName}
-                </span>
-                <span
-                  className={`text-[10px] truncate ${
-                    isLight ? "text-slate-500" : "text-slate-500"
-                  }`}
-                >
-                  Active Session
-                </span>
-              </div>
-            </div>
-
-            <button
-              onClick={handleLogout}
-              className={`p-2 rounded-xl border transition-all shrink-0 group ${
-                isLight
-                  ? "text-slate-400 hover:text-red-600 hover:bg-red-50 border-transparent hover:border-red-200"
-                  : "text-slate-400 hover:text-red-400 hover:bg-red-500/10 border-transparent hover:border-red-500/20"
-              }`}
-              title="Sign Out"
-            >
-              <LogOut className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-            </button>
           </div>
         </div>
       </aside>

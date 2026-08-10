@@ -18,6 +18,8 @@ import {
   Layers,
   ChevronRight,
   RefreshCw,
+  Megaphone,
+  Pin,
 } from "lucide-react";
 
 function Home() {
@@ -36,6 +38,7 @@ function Home() {
   const [totalUsersCount, setTotalUsersCount] = useState(null);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(null);
   const [activeServicesCount, setActiveServicesCount] = useState(null);
+  const [recentAnnouncements, setRecentAnnouncements] = useState([]);
   const [empLeaveStats, setEmpLeaveStats] = useState({
     balance: 18,
     pending: 1,
@@ -167,6 +170,17 @@ function Home() {
 
   useEffect(() => {
     fetchDynamicMetrics();
+
+    // Fetch top 2 recent announcements
+    const authToken = userToken?.startsWith("Bearer ")
+      ? userToken
+      : `Bearer ${userToken}`;
+    fetch("http://localhost:5002/announcements", {
+      headers: { Authorization: authToken },
+    })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setRecentAnnouncements(data.slice(0, 2)))
+      .catch(() => {});
   }, [userRole, userToken, userId]);
 
   // Derived user display name & details
@@ -760,13 +774,106 @@ function Home() {
                     isLight ? "text-slate-600" : "text-slate-400"
                   }`}
                 >
-                  {userEmail}
+                  Verified token access
                 </p>
               </div>
             </div>
           </div>
         </section>
       </div>
+
+      {/* Latest Announcements Section */}
+      <section className="space-y-4 pt-4">
+        <div className="flex items-center justify-between">
+          <h2
+            className={`text-lg font-bold flex items-center gap-2 ${
+              isLight ? "text-slate-900" : "text-slate-200"
+            }`}
+          >
+            <Megaphone className="w-5 h-5 text-indigo-600" />
+            <span>Latest Company Announcements</span>
+          </h2>
+          <Link
+            to="/announcements"
+            className={`text-xs font-semibold flex items-center gap-1 transition-colors ${
+              isLight
+                ? "text-indigo-600 hover:text-indigo-700"
+                : "text-indigo-400 hover:text-indigo-300"
+            }`}
+          >
+            <span>View All Board Notices</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {recentAnnouncements.length === 0 ? (
+          <div
+            className={`p-6 border rounded-2xl text-center text-xs ${
+              isLight
+                ? "bg-white border-slate-200 text-slate-500"
+                : "bg-slate-900 border-slate-800 text-slate-400"
+            }`}
+          >
+            No company announcements posted yet.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {recentAnnouncements.map((item) => (
+              <div
+                key={item._id}
+                className={`p-5 rounded-2xl border backdrop-blur-md shadow-md flex flex-col justify-between space-y-3 ${
+                  item.isPinned
+                    ? isLight
+                      ? "bg-indigo-50/50 border-indigo-200"
+                      : "bg-indigo-950/20 border-indigo-500/30"
+                    : isLight
+                    ? "bg-white border-slate-200"
+                    : "bg-slate-900 border-slate-800"
+                }`}
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                        item.priority === "URGENT"
+                          ? "bg-red-500/10 text-red-400 border-red-500/20"
+                          : item.priority === "EVENT"
+                          ? "bg-violet-500/10 text-violet-400 border-violet-500/20"
+                          : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                      }`}
+                    >
+                      {item.priority || "INFO"}
+                    </span>
+                    {item.isPinned && (
+                      <span className="text-[10px] flex items-center gap-1 text-indigo-400 font-semibold">
+                        <Pin className="w-3 h-3" /> Pinned
+                      </span>
+                    )}
+                  </div>
+                  <h3
+                    className={`font-bold text-sm line-clamp-1 ${
+                      isLight ? "text-slate-900" : "text-white"
+                    }`}
+                  >
+                    {item.title}
+                  </h3>
+                  <p
+                    className={`text-xs line-clamp-2 leading-relaxed ${
+                      isLight ? "text-slate-600" : "text-slate-400"
+                    }`}
+                  >
+                    {item.content}
+                  </p>
+                </div>
+                <div className="text-[10px] text-slate-500 pt-2 border-t border-slate-800/40 flex justify-between">
+                  <span>By {item.postedByName} ({item.postedByRole})</span>
+                  <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   );
 }
