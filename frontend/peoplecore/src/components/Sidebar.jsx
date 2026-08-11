@@ -92,6 +92,12 @@ function Sidebar() {
       badge: "Main",
     },
     {
+      label: "Attendance",
+      path: "/attendance",
+      icon: Clock,
+      roles: ["ADMIN", "HR", "EMPLOYEE"],
+    },
+    {
       label: "Users Directory",
       path: "/users",
       icon: Users,
@@ -100,14 +106,14 @@ function Sidebar() {
     {
       label: "Pending Requests",
       path: "/pending-request",
-      icon: Clock,
+      icon: UserCheck2,
       roles: ["ADMIN", "HR"],
     },
     {
       label: "My Leaves",
       path: "/my-leaves",
       icon: Calendar,
-      roles: ["EMPLOYEE"],
+      roles: ["ADMIN", "HR", "EMPLOYEE"],
     },
     {
       label: "Notifications",
