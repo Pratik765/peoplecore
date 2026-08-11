@@ -29,7 +29,7 @@ function Modal({
 
       {/* Modal Container Card */}
       <div
-        className={`relative w-full max-w-md border rounded-2xl shadow-2xl p-6 overflow-hidden z-10 animate-scaleUp transition-colors ${
+        className={`relative w-full max-w-md max-h-[90vh] overflow-y-auto border rounded-2xl shadow-2xl p-6 z-10 animate-scaleUp transition-colors ${
           isLight
             ? "bg-white border-slate-200 text-slate-900"
             : "bg-slate-900 border-slate-800 text-white"

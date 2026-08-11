@@ -118,7 +118,7 @@ function Home() {
       }
 
       // 3. Check live health status of microservices
-      const services = ["5001", "5002", "5004"];
+      const services = ["5001", "5002", "5004", "5005", "5006", "5007", "5008"];
       const healthResults = await Promise.allSettled(
         services.map((port) =>
           fetch(`http://localhost:${port}/health`).then((res) => res.ok)

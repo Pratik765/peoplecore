@@ -16,6 +16,7 @@ import Profile from "./components/Profile.jsx";
 import VerifyOtp from "./components/VerifyOtp.jsx";
 import MyLeaves from "./components/MyLeaves.jsx";
 import Attendance from "./components/Attendance.jsx";
+import Payroll from "./components/Payroll.jsx";
 import Notifications from "./components/Notifications.jsx";
 import Announcements from "./components/Announcements.jsx";
 const router = createBrowserRouter([
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
           { path: "/home", element: <Home /> },
           { path: "/profile", element: <Profile /> },
           { path: "/attendance", element: <Attendance /> },
+          { path: "/payroll", element: <Payroll /> },
           { path: "/my-leaves", element: <MyLeaves /> },
           { path: "/notifications", element: <Notifications /> },
           { path: "/announcements", element: <Announcements /> },

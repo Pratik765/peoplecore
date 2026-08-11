@@ -812,9 +812,19 @@ function MyLeaves() {
             }`}
           >
             <span>
-              Showing <strong className="text-slate-900 dark:text-slate-200">{startRecord}</strong> to{" "}
-              <strong className="text-slate-900 dark:text-slate-200">{endRecord}</strong> of{" "}
-              <strong className="text-slate-900 dark:text-slate-200">{filteredLeaves.length}</strong> applications
+              Showing{" "}
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
+                {startRecord}
+              </strong>{" "}
+              to{" "}
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
+                {endRecord}
+              </strong>{" "}
+              of{" "}
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
+                {filteredLeaves.length}
+              </strong>{" "}
+              applications
             </span>
 
             {/* Pagination Controls */}
@@ -878,7 +888,7 @@ function MyLeaves() {
           />
 
           <div
-            className={`relative w-full max-w-lg border rounded-3xl shadow-2xl p-6 sm:p-8 overflow-hidden z-10 space-y-6 ${
+            className={`relative w-full max-w-lg max-h-[90vh] overflow-y-auto border rounded-3xl shadow-2xl p-6 sm:p-8 z-10 space-y-6 ${
               isLight
                 ? "bg-white border-slate-200 text-slate-900"
                 : "bg-slate-900 border-slate-800 text-white"

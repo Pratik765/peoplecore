@@ -87,7 +87,7 @@ function VerifyOtp() {
 
   return (
     <div
-      className={`h-screen w-screen overflow-hidden flex transition-colors selection:bg-indigo-500 selection:text-white ${
+      className={`min-h-screen lg:h-screen w-screen overflow-y-auto lg:overflow-hidden flex transition-colors selection:bg-indigo-500 selection:text-white ${
         isLight ? "bg-slate-50 text-slate-900" : "bg-slate-950 text-slate-100"
       }`}
     >

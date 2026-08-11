@@ -42,7 +42,7 @@ function Profile() {
   const [department, setDepartment] = useState("Engineering");
   const [designation, setDesignation] = useState("Software Engineer");
   const [joinDate, setJoinDate] = useState("");
-  const [location, setLocation] = useState("Bengaluru, India");
+  const [location, setLocation] = useState("Pune, Maharashtra");
   const [bio, setBio] = useState("");
   const [avatar, setAvatar] = useState("");
 
@@ -79,7 +79,7 @@ function Profile() {
       setDepartment(res.department || "Engineering");
       setDesignation(res.designation || "Software Engineer");
       setJoinDate(res.joinDate || new Date().toISOString().split("T")[0]);
-      setLocation(res.location || "Bengaluru, India");
+      setLocation(res.location || "Pune, Maharashtra");
       setBio(res.bio || "");
       setAvatar(res.avatar || "");
     } catch (err) {
@@ -477,7 +477,7 @@ function Profile() {
                 </div>
                 <input
                   type="text"
-                  placeholder="e.g. Bengaluru, India"
+                  placeholder="e.g. Pune, Maharashtra"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all ${

@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema(
     },
     location: {
       type: String,
-      default: "Bengaluru, India",
+      default: "Pune, Maharashtra",
     },
     bio: {
       type: String,

@@ -16,6 +16,7 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
+  CalendarPlus,
 } from "lucide-react";
 
 const NOTIFICATION_API = "http://localhost:5005";
@@ -54,6 +55,14 @@ const getTypeConfig = (type, isLight) => {
         color: isLight
           ? "text-amber-600 bg-amber-50 border-amber-200"
           : "text-amber-400 bg-amber-500/10 border-amber-500/20",
+      };
+    case "LEAVE_APPLIED":
+      return {
+        icon: CalendarPlus,
+        label: "Leave Applied",
+        color: isLight
+          ? "text-teal-600 bg-teal-50 border-teal-200"
+          : "text-teal-400 bg-teal-500/10 border-teal-500/20",
       };
     case "ANNOUNCEMENT":
       return {
@@ -595,21 +604,15 @@ function Notifications() {
           >
             <span>
               Showing{" "}
-              <strong
-                className={isLight ? "text-slate-900" : "text-slate-200"}
-              >
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
                 {startRecord}
               </strong>{" "}
               to{" "}
-              <strong
-                className={isLight ? "text-slate-900" : "text-slate-200"}
-              >
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
                 {endRecord}
               </strong>{" "}
               of{" "}
-              <strong
-                className={isLight ? "text-slate-900" : "text-slate-200"}
-              >
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
                 {filteredNotifications.length}
               </strong>{" "}
               notifications

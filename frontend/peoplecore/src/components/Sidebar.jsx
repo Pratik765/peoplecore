@@ -22,6 +22,7 @@ import {
   Moon,
   Bell,
   Megaphone,
+  Receipt,
 } from "lucide-react";
 
 function Sidebar() {
@@ -95,6 +96,12 @@ function Sidebar() {
       label: "Attendance",
       path: "/attendance",
       icon: Clock,
+      roles: ["ADMIN", "HR", "EMPLOYEE"],
+    },
+    {
+      label: "Payroll",
+      path: "/payroll",
+      icon: Receipt,
       roles: ["ADMIN", "HR", "EMPLOYEE"],
     },
     {

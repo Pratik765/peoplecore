@@ -15,6 +15,7 @@ const notificationSchema = new mongoose.Schema(
         "ACCOUNT_REJECTED",
         "LEAVE_APPROVED",
         "LEAVE_REJECTED",
+        "LEAVE_APPLIED",
         "ANNOUNCEMENT",
         "SYSTEM",
       ],

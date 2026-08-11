@@ -12,6 +12,7 @@ import {
   Check,
   ChevronRight,
   X,
+  CalendarPlus,
 } from "lucide-react";
 
 const NOTIFICATION_API = "http://localhost:5005";
@@ -46,6 +47,13 @@ const getTypeConfig = (type, isLight) => {
         color: isLight
           ? "text-amber-600 bg-amber-50"
           : "text-amber-400 bg-amber-500/10",
+      };
+    case "LEAVE_APPLIED":
+      return {
+        icon: CalendarPlus,
+        color: isLight
+          ? "text-teal-600 bg-teal-50"
+          : "text-teal-400 bg-teal-500/10",
       };
     case "ANNOUNCEMENT":
       return {

@@ -91,7 +91,7 @@ app.post("/leaves", async (req, res) => {
       for (const hr of hrUsers) {
         sendNotification(token, {
           userId: hr._id,
-          type: "LEAVE_APPLICATION",
+          type: "LEAVE_APPLIED",
           title: `📝 New Leave Application (${lrid})`,
           message: `${employee?.name || "An employee"} applied for ${totalDays} day(s) of ${leaveType || "leave"}.`,
           metadata: { leaveId: newLeave._id, lrid },

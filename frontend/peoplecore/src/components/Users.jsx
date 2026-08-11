@@ -563,9 +563,19 @@ function Users() {
             }`}
           >
             <span>
-              Showing <strong className="text-slate-900 dark:text-slate-200">{startRecord}</strong> to{" "}
-              <strong className="text-slate-900 dark:text-slate-200">{endRecord}</strong> of{" "}
-              <strong className="text-slate-900 dark:text-slate-200">{filteredUsers.length}</strong> entries
+              Showing{" "}
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
+                {startRecord}
+              </strong>{" "}
+              to{" "}
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
+                {endRecord}
+              </strong>{" "}
+              of{" "}
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
+                {filteredUsers.length}
+              </strong>{" "}
+              entries
             </span>
 
             {/* Pagination Controls */}

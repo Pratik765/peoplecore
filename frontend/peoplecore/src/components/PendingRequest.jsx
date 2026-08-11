@@ -427,9 +427,19 @@ function PendingRequest() {
             }`}
           >
             <span>
-              Showing <strong className="text-slate-900 dark:text-slate-200">{startRecord}</strong> to{" "}
-              <strong className="text-slate-900 dark:text-slate-200">{endRecord}</strong> of{" "}
-              <strong className="text-slate-900 dark:text-slate-200">{pendingList.length}</strong> requests
+              Showing{" "}
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
+                {startRecord}
+              </strong>{" "}
+              to{" "}
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
+                {endRecord}
+              </strong>{" "}
+              of{" "}
+              <strong className={`font-bold ${isLight ? "text-indigo-600" : "text-indigo-400"}`}>
+                {pendingList.length}
+              </strong>{" "}
+              requests
             </span>
 
             {/* Pagination Controls */}

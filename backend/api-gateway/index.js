@@ -55,6 +55,13 @@ app.use(
     changeOrigin: true,
   })
 );
+app.use(
+  "/pc/payroll",
+  createProxyMiddleware({
+    target: process.env.PAYROLL_SERVICE_URL || "http://localhost:5008",
+    changeOrigin: true,
+  })
+);
 
 app.get("/health", (req, res) => {
   res.status(200).json({
