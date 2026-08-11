@@ -30,7 +30,36 @@ const userSchema = new mongoose.Schema(
       enum: ["PENDING", "ACCEPTED", "REJECTED"],
       default: "PENDING",
     },
+    phone: {
+      type: String,
+      default: "",
+    },
+    department: {
+      type: String,
+      default: "Engineering",
+    },
+    designation: {
+      type: String,
+      default: "Software Engineer",
+    },
+    joinDate: {
+      type: String,
+      default: () => new Date().toISOString().split("T")[0],
+    },
+    location: {
+      type: String,
+      default: "Bengaluru, India",
+    },
+    bio: {
+      type: String,
+      default: "",
+    },
+    avatar: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );
+
 module.exports = mongoose.model("User", userSchema);
