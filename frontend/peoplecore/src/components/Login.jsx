@@ -16,6 +16,10 @@ import {
   Briefcase,
   Shield,
   UserCheck,
+  Check,
+  Zap,
+  Building2,
+  Clock,
 } from "lucide-react";
 
 const reducer = (currentState, action) => {
@@ -110,143 +114,176 @@ function Login() {
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center p-4 relative overflow-hidden transition-colors selection:bg-indigo-500 selection:text-white ${
+      className={`h-screen w-screen overflow-hidden flex transition-colors selection:bg-indigo-500 selection:text-white ${
         isLight ? "bg-slate-50 text-slate-900" : "bg-slate-950 text-slate-100"
       }`}
     >
-      {/* Background Orbs */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-600/15 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[350px] h-[350px] bg-violet-600/10 blur-[100px] rounded-full pointer-events-none" />
-      <div className="absolute top-10 left-10 w-[300px] h-[300px] bg-blue-600/10 blur-[90px] rounded-full pointer-events-none" />
+      {/* Left Column: Visual Hero Section (Visible on Large Screens) */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 text-white p-12 flex-col justify-between">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/20 blur-[130px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-violet-500/20 blur-[110px] rounded-full pointer-events-none" />
 
-      {/* Main Sign In Card */}
-      <div className="w-full max-w-md z-10">
-        {/* Header Logo */}
-        <div className="flex flex-col items-center text-center mb-8">
-          <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-4 group transition-transform duration-300 hover:scale-105">
-            <Users className="w-7 h-7 text-white" />
+        {/* Brand Logo Header */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="h-11 w-11 rounded-2xl bg-gradient-to-tr from-indigo-400 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <Users className="w-6 h-6 text-white" />
           </div>
-          <div
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium mb-2 backdrop-blur-md border ${
-              isLight
-                ? "bg-indigo-50 border-indigo-200 text-indigo-700"
-                : "bg-slate-900/90 border-slate-800 text-indigo-400"
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>PeopleCore HR Management</span>
+          <div>
+            <span className="text-xl font-bold tracking-tight">PeopleCore</span>
+            <span className="block text-[10px] text-indigo-300 font-semibold tracking-wider uppercase">
+              HR Microservice Engine
+            </span>
           </div>
-          <h1
-            className={`text-2xl font-bold tracking-tight sm:text-3xl ${
-              isLight ? "text-slate-900" : "text-white"
-            }`}
-          >
-            Welcome back
-          </h1>
-          <p
-            className={`text-sm mt-1 ${
-              isLight ? "text-slate-600" : "text-slate-400"
-            }`}
-          >
-            Sign In to access your workspace
-          </p>
         </div>
 
-        {/* Card Box */}
-        <div
-          className={`backdrop-blur-xl border shadow-2xl rounded-2xl p-6 sm:p-8 space-y-6 transition-colors ${
-            isLight
-              ? "bg-white/90 border-slate-200 shadow-slate-200/50 text-slate-900"
-              : "bg-slate-900/80 border-slate-800/80 shadow-slate-950/50 text-slate-100"
-          }`}
-        >
-          {/* Quick Auto-fill Shortcuts */}
-          <div
-            className={`rounded-xl p-3 border ${
-              isLight
-                ? "bg-slate-50 border-slate-200"
-                : "bg-slate-950/60 border-slate-800/60"
-            }`}
-          >
-            <div
-              className={`text-xs font-medium mb-2 flex items-center justify-between ${
-                isLight ? "text-slate-600" : "text-slate-400"
+        {/* Center Pitch & Features */}
+        <div className="relative z-10 space-y-6 max-w-lg">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Next-Gen Enterprise Workforce Management</span>
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+            Streamline your workforce, attendance & leaves in one place.
+          </h2>
+
+          <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md space-y-1">
+              <Clock className="w-5 h-5 text-emerald-400" />
+              <div className="font-bold text-sm">Real-Time Attendance</div>
+              <div className="text-xs text-slate-400">Automated check-ins & hours calculation</div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md space-y-1">
+              <Zap className="w-5 h-5 text-amber-400" />
+              <div className="font-bold text-sm">Instant Leave Approvals</div>
+              <div className="text-xs text-slate-400">One-click workflow for HR managers</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Badge */}
+        <div className="relative z-10 text-xs text-slate-400 flex items-center justify-between border-t border-white/10 pt-4">
+          <span>© 2026 PeopleCore Inc.</span>
+          <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            6 Microservices Active
+          </span>
+        </div>
+      </div>
+
+      {/* Right Column: Sign In Form Container */}
+      <div className="w-full lg:w-1/2 h-full flex flex-col justify-between p-6 sm:p-10 relative overflow-hidden">
+        {/* Background Orbs for right side */}
+        <div className="absolute top-1/3 right-1/4 w-[350px] h-[350px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
+
+        {/* Top Header */}
+        <div className="flex items-center justify-between z-10">
+          <div className="lg:hidden flex items-center gap-2">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-600 flex items-center justify-center text-white">
+              <Users className="w-5 h-5" />
+            </div>
+            <span className="font-bold text-base">PeopleCore</span>
+          </div>
+          <div className="ml-auto text-xs">
+            <span className={isLight ? "text-slate-600" : "text-slate-400"}>New to PeopleCore? </span>
+            <Link
+              to="/signup"
+              className="font-bold text-indigo-600 hover:text-indigo-700 underline underline-offset-4 ml-1"
+            >
+              Request Access
+            </Link>
+          </div>
+        </div>
+
+        {/* Center Form Card */}
+        <div className="w-full max-w-md mx-auto z-10 space-y-5 my-auto">
+          {/* Header Title */}
+          <div className="text-center space-y-1">
+            <h1
+              className={`text-2xl sm:text-3xl font-bold tracking-tight ${
+                isLight ? "text-slate-900" : "text-white"
               }`}
             >
-              <span>Quick Sign In Auto-fill:</span>
+              Sign In to PeopleCore
+            </h1>
+            <p className={`text-xs ${isLight ? "text-slate-600" : "text-slate-400"}`}>
+              Enter your corporate credentials to access your dashboard
+            </p>
+          </div>
+
+          {/* Quick Auto-fill Shortcuts */}
+          <div
+            className={`rounded-2xl p-3 border ${
+              isLight ? "bg-white border-slate-200/80 shadow-sm" : "bg-slate-900/90 border-slate-800"
+            }`}
+          >
+            <div className={`text-[11px] font-semibold uppercase tracking-wider mb-2 ${isLight ? "text-slate-500" : "text-slate-400"}`}>
+              Quick Auto-Fill Sign In:
             </div>
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() =>
-                  handleQuickFill("aditya.sharma@peoplecore.in", "aditya123")
-                }
-                className={`text-[11px] py-1.5 px-2 border rounded-lg transition-all text-center flex flex-col items-center gap-1 group ${
+                onClick={() => handleQuickFill("aditya.sharma@peoplecore.in", "aditya123")}
+                className={`py-1.5 px-2 border rounded-xl transition-all text-center flex flex-col items-center gap-1 group ${
                   isLight
-                    ? "bg-white border-slate-200 text-slate-700 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700"
-                    : "bg-slate-800/80 border-slate-700/50 text-slate-300 hover:bg-indigo-600/20 hover:border-indigo-500/50 hover:text-indigo-300"
+                    ? "bg-slate-50 border-slate-200 text-slate-700 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700"
+                    : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:bg-indigo-600/20 hover:border-indigo-500/50 hover:text-indigo-300"
                 }`}
               >
                 <Shield className="w-3.5 h-3.5 text-indigo-600" />
-                <span className="font-semibold truncate">Aditya (Admin)</span>
+                <span className="text-[11px] font-semibold truncate">Aditya (Admin)</span>
               </button>
 
               <button
                 type="button"
-                onClick={() =>
-                  handleQuickFill("priya.patel@peoplecore.in", "priya123")
-                }
-                className={`text-[11px] py-1.5 px-2 border rounded-lg transition-all text-center flex flex-col items-center gap-1 group ${
+                onClick={() => handleQuickFill("priya.patel@peoplecore.in", "priya123")}
+                className={`py-1.5 px-2 border rounded-xl transition-all text-center flex flex-col items-center gap-1 group ${
                   isLight
-                    ? "bg-white border-slate-200 text-slate-700 hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700"
-                    : "bg-slate-800/80 border-slate-700/50 text-slate-300 hover:bg-amber-600/20 hover:border-amber-500/50 hover:text-amber-300"
+                    ? "bg-slate-50 border-slate-200 text-slate-700 hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700"
+                    : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:bg-amber-600/20 hover:border-amber-500/50 hover:text-amber-300"
                 }`}
               >
                 <Briefcase className="w-3.5 h-3.5 text-amber-600" />
-                <span className="font-semibold truncate">Priya (HR)</span>
+                <span className="text-[11px] font-semibold truncate">Priya (HR)</span>
               </button>
 
               <button
                 type="button"
-                onClick={() =>
-                  handleQuickFill("rahul.verma@peoplecore.in", "rahul123")
-                }
-                className={`text-[11px] py-1.5 px-2 border rounded-lg transition-all text-center flex flex-col items-center gap-1 group ${
+                onClick={() => handleQuickFill("rahul.verma@peoplecore.in", "rahul123")}
+                className={`py-1.5 px-2 border rounded-xl transition-all text-center flex flex-col items-center gap-1 group ${
                   isLight
-                    ? "bg-white border-slate-200 text-slate-700 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700"
-                    : "bg-slate-800/80 border-slate-700/50 text-slate-300 hover:bg-emerald-600/20 hover:border-emerald-500/50 hover:text-emerald-300"
+                    ? "bg-slate-50 border-slate-200 text-slate-700 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700"
+                    : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:bg-emerald-600/20 hover:border-emerald-500/50 hover:text-emerald-300"
                 }`}
               >
                 <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="font-semibold truncate">Rahul (Emp)</span>
+                <span className="text-[11px] font-semibold truncate">Rahul (Emp)</span>
               </button>
             </div>
           </div>
 
           {/* Alert Messages */}
           {errorMsg && (
-            <div className="flex items-center gap-3 bg-red-950/50 border border-red-800/60 text-red-300 px-4 py-3 rounded-xl text-sm animate-fadeIn">
-              <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+            <div className="flex items-center gap-2.5 bg-red-950/50 border border-red-800/60 text-red-300 px-3.5 py-2.5 rounded-xl text-xs">
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="flex items-center gap-3 bg-emerald-950/50 border border-emerald-800/60 text-emerald-300 px-4 py-3 rounded-xl text-sm animate-fadeIn">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            <div className="flex items-center gap-2.5 bg-emerald-950/50 border border-emerald-800/60 text-emerald-300 px-3.5 py-2.5 rounded-xl text-xs">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>{successMsg}</span>
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email Field */}
-            <div className="space-y-1.5">
+          {/* Sign In Form */}
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            <div className="space-y-1">
               <label
                 htmlFor="email"
-                className={`block text-xs font-semibold ${
-                  isLight ? "text-slate-700" : "text-slate-300"
-                }`}
+                className={`block text-xs font-semibold ${isLight ? "text-slate-700" : "text-slate-300"}`}
               >
                 Email Address
               </label>
@@ -255,84 +292,65 @@ function Login() {
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
-                  type="email"
                   id="email"
+                  type="email"
                   required
                   placeholder="name@company.com"
                   value={state.email}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-mono ${
-                    isLight
-                      ? "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
-                      : "bg-slate-950/80 border-slate-800 text-slate-100 placeholder-slate-500"
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all ${
+                    isLight ? "bg-white border-slate-200 text-slate-900" : "bg-slate-900 border-slate-800 text-slate-100"
                   }`}
                 />
               </div>
             </div>
 
-            {/* Password Field */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className={`block text-xs font-semibold ${
-                    isLight ? "text-slate-700" : "text-slate-300"
-                  }`}
+                  className={`block text-xs font-semibold ${isLight ? "text-slate-700" : "text-slate-300"}`}
                 >
                   Password
                 </label>
-                <a
-                  href="#forgot"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert("Password reset to be configured.");
-                  }}
-                  className="text-xs text-indigo-600 hover:text-indigo-500 transition-colors"
-                >
+                <span className="text-[11px] text-indigo-500 hover:text-indigo-600 cursor-pointer font-medium">
                   Forgot password?
-                </a>
+                </span>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
-                  type={showPassword ? "text" : "password"}
                   id="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   placeholder="••••••••"
                   value={state.password}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-10 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all ${
-                    isLight
-                      ? "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
-                      : "bg-slate-950/80 border-slate-800 text-slate-100 placeholder-slate-500"
+                  className={`w-full pl-10 pr-10 py-2.5 border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all ${
+                    isLight ? "bg-white border-slate-200 text-slate-900" : "bg-slate-900 border-slate-800 text-slate-100"
                   }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-indigo-500 via-indigo-600 to-violet-600 hover:from-indigo-600 hover:to-violet-700 active:scale-[0.99] text-white font-medium rounded-xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+              className="w-full py-3 px-4 bg-gradient-to-r from-indigo-500 via-indigo-600 to-violet-600 hover:from-indigo-600 hover:to-violet-700 active:scale-[0.99] text-white font-bold rounded-xl text-xs shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all disabled:opacity-60 mt-2"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>Signing in...</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Signing In...</span>
                 </>
               ) : (
                 <>
@@ -342,23 +360,11 @@ function Login() {
               )}
             </button>
           </form>
+        </div>
 
-          {/* Footer */}
-          <div
-            className={`pt-2 text-center text-xs border-t ${
-              isLight
-                ? "border-slate-200 text-slate-600"
-                : "border-slate-800/60 text-slate-400"
-            }`}
-          >
-            Don't have an account?{" "}
-            <Link
-              to="/signup"
-              className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors"
-            >
-              Create an account
-            </Link>
-          </div>
+        {/* Footer */}
+        <div className={`text-center text-[11px] z-10 ${isLight ? "text-slate-500" : "text-slate-500"}`}>
+          Secured by PeopleCore Microservices Engine • Version 1.0
         </div>
       </div>
     </div>
