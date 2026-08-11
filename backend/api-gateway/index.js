@@ -41,6 +41,20 @@ app.use(
     changeOrigin: true,
   })
 );
+app.use(
+  "/pc/leave",
+  createProxyMiddleware({
+    target: process.env.LEAVE_SERVICE_URL || "http://localhost:5006",
+    changeOrigin: true,
+  })
+);
+app.use(
+  "/pc/attendance",
+  createProxyMiddleware({
+    target: process.env.ATTENDANCE_SERVICE_URL || "http://localhost:5007",
+    changeOrigin: true,
+  })
+);
 
 app.get("/health", (req, res) => {
   res.status(200).json({

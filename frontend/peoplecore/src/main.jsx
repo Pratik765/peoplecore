@@ -15,6 +15,7 @@ import Unauthorized from "./components/Unauthorized.jsx";
 import Profile from "./components/Profile.jsx";
 import VerifyOtp from "./components/VerifyOtp.jsx";
 import MyLeaves from "./components/MyLeaves.jsx";
+import Attendance from "./components/Attendance.jsx";
 import Notifications from "./components/Notifications.jsx";
 import Announcements from "./components/Announcements.jsx";
 const router = createBrowserRouter([
@@ -25,7 +26,6 @@ const router = createBrowserRouter([
       // Public routes
       { path: "/", element: <Login /> },
       { path: "/signup", element: <Signup /> },
-      { path: "/profile", element: <Profile /> },
       { path: "/verify-otp", element: <VerifyOtp /> },
 
       // Protected routes (login required)
@@ -33,6 +33,8 @@ const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           { path: "/home", element: <Home /> },
+          { path: "/profile", element: <Profile /> },
+          { path: "/attendance", element: <Attendance /> },
           { path: "/my-leaves", element: <MyLeaves /> },
           { path: "/notifications", element: <Notifications /> },
           { path: "/announcements", element: <Announcements /> },

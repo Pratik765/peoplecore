@@ -17,6 +17,9 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
+  User,
+  ShieldCheck,
+  Filter,
 } from "lucide-react";
 
 function MyLeaves() {
@@ -24,31 +27,14 @@ function MyLeaves() {
   const theme = useSelector((store) => store.theme) || "dark";
   const isLight = theme === "light";
 
-  const userId = user?.user?._id || user?.user?.id || "";
+  const userRole = user?.user?.role || "EMPLOYEE";
+  const isHR = userRole === "ADMIN" || userRole === "HR";
+  const token = user?.token || localStorage.getItem("token") || "";
 
-  // Initial Demo / Mock Leaves for immediate visual feedback
-  const initialDemoLeaves = [
-    {
-      lrid: "LR-101",
-      leaveType: { type: "Paid Annual Leave" },
-      start_date: "2026-08-20",
-      end_date: "2026-08-22",
-      remark: "Family vacation trip",
-      applied_at: "2026-08-05",
-      status: "APPROVED",
-    },
-    {
-      lrid: "LR-102",
-      leaveType: { type: "Sick Leave" },
-      start_date: "2026-09-01",
-      end_date: "2026-09-01",
-      remark: "Medical checkup appointment",
-      applied_at: "2026-08-07",
-      status: "PENDING",
-    },
-  ];
+  // View mode for HR/Admin: "my" or "all"
+  const [viewScope, setViewScope] = useState("my");
 
-  const [leaves, setLeaves] = useState(initialDemoLeaves);
+  const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -65,6 +51,9 @@ function MyLeaves() {
   const [remark, setRemark] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Action loading state for Approve/Reject
+  const [actionLoadingId, setActionLoadingId] = useState(null);
+
   // Filter state
   const [statusFilter, setStatusFilter] = useState("ALL");
 
@@ -76,27 +65,39 @@ function MyLeaves() {
     setLoading(true);
     setErrorMsg("");
     try {
-      const response = await fetch(
-        `http://localhost:8080/api1/leaverequest/getById?mongoid=${userId}`
-      );
+      const endpoint =
+        viewScope === "all" && isHR
+          ? "http://localhost:5006/leaves/all"
+          : "http://localhost:5006/leaves/my";
+
+      const response = await fetch(endpoint, {
+        headers: {
+          Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}`,
+        },
+      });
+
       if (response.ok) {
         const res = await response.json();
         if (Array.isArray(res)) {
           setLeaves(res);
         }
+      } else {
+        const errData = await response.json();
+        setErrorMsg(errData.message || "Failed to load leave records.");
       }
     } catch (err) {
-      console.log("Using local leave state:", err.message);
+      console.log("Error loading leaves:", err.message);
+      setErrorMsg("Unable to connect to leave service.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (userId) {
+    if (token) {
       loadData();
     }
-  }, [userId]);
+  }, [token, viewScope]);
 
   // Calculate Leave Days duration helper
   const calculateDays = (start, end) => {
@@ -109,7 +110,7 @@ function MyLeaves() {
   };
 
   // Submit New Leave Application
-  const handleApplyLeave = (e) => {
+  const handleApplyLeave = async (e) => {
     e.preventDefault();
     setErrorMsg("");
     setSuccessMsg("");
@@ -121,42 +122,122 @@ function MyLeaves() {
 
     setSubmitting(true);
 
-    const newLeave = {
-      lrid: `LR-${Date.now().toString().slice(-4)}`,
-      leaveType: { type: leaveType },
-      start_date: startDate,
-      end_date: endDate,
-      remark,
-      applied_at: new Date().toISOString().split("T")[0],
-      status: "PENDING",
-    };
+    try {
+      const response = await fetch("http://localhost:5006/leaves", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          leaveType,
+          start_date: startDate,
+          end_date: endDate,
+          remark,
+        }),
+      });
 
-    setTimeout(() => {
-      setLeaves((prev) => [newLeave, ...prev]);
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || "Failed to submit leave application.");
+      }
+
       setSuccessMsg("Leave application submitted successfully for review!");
-      setSubmitting(false);
       setShowApplyModal(false);
-      // Reset form fields
       setStartDate("");
       setEndDate("");
       setRemark("");
-    }, 400);
+      loadData();
+    } catch (err) {
+      setErrorMsg(err.message || "Error submitting leave application.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Delete / Cancel Leave Application
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     setSuccessMsg("");
-    fetch(`http://localhost:8080/api1/leaverequest/delete?lrid=${id}`, {
-      method: "DELETE",
-    })
-      .then(() => {
-        setLeaves((prev) => prev.filter((l) => l.lrid !== id));
-        setSuccessMsg("Leave application canceled successfully.");
-      })
-      .catch(() => {
-        setLeaves((prev) => prev.filter((l) => l.lrid !== id));
-        setSuccessMsg("Leave application removed.");
+    setErrorMsg("");
+    try {
+      const response = await fetch(`http://localhost:5006/leaves/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}`,
+        },
       });
+
+      if (response.ok) {
+        setLeaves((prev) => prev.filter((l) => l._id !== id && l.lrid !== id));
+        setSuccessMsg("Leave application canceled successfully.");
+      } else {
+        const res = await response.json();
+        setErrorMsg(res.message || "Failed to cancel leave application.");
+      }
+    } catch (err) {
+      setErrorMsg("Error communicating with leave service.");
+    }
+  };
+
+  // HR/Admin Approve Action
+  const handleApprove = async (id) => {
+    setActionLoadingId(id);
+    setSuccessMsg("");
+    setErrorMsg("");
+    try {
+      const response = await fetch(`http://localhost:5006/leaves/${id}/approve`, {
+        method: "PUT",
+        headers: {
+          Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const res = await response.json();
+        setLeaves((prev) =>
+          prev.map((l) => (l._id === id ? res.leave || { ...l, status: "APPROVED" } : l))
+        );
+        setSuccessMsg("Leave application approved successfully!");
+      } else {
+        const res = await response.json();
+        setErrorMsg(res.message || "Failed to approve leave application.");
+      }
+    } catch (err) {
+      setErrorMsg("Error communicating with leave service.");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  // HR/Admin Reject Action
+  const handleReject = async (id) => {
+    setActionLoadingId(id);
+    setSuccessMsg("");
+    setErrorMsg("");
+    try {
+      const response = await fetch(`http://localhost:5006/leaves/${id}/reject`, {
+        method: "PUT",
+        headers: {
+          Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const res = await response.json();
+        setLeaves((prev) =>
+          prev.map((l) => (l._id === id ? res.leave || { ...l, status: "REJECTED" } : l))
+        );
+        setSuccessMsg("Leave application rejected.");
+      } else {
+        const res = await response.json();
+        setErrorMsg(res.message || "Failed to reject leave application.");
+      }
+    } catch (err) {
+      setErrorMsg("Error communicating with leave service.");
+    } finally {
+      setActionLoadingId(null);
+    }
   };
 
   // Dynamic Metrics
@@ -174,10 +255,10 @@ function MyLeaves() {
     return leaves.filter((l) => l.status === statusFilter);
   }, [leaves, statusFilter]);
 
-  // Reset to page 1 whenever filters change
+  // Reset to page 1 whenever filters or scope changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter]);
+  }, [statusFilter, viewScope]);
 
   // Pagination Calculation
   const totalPages = Math.ceil(filteredLeaves.length / ITEMS_PER_PAGE) || 1;
@@ -259,7 +340,7 @@ function MyLeaves() {
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Employee Portal</span>
+              <span>{isHR ? "Leave Management Portal" : "Employee Portal"}</span>
             </div>
             <h1
               className={`text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-3 ${
@@ -267,19 +348,58 @@ function MyLeaves() {
               }`}
             >
               <Calendar className="w-7 h-7 text-emerald-600" />
-              <span>My Leaves Management</span>
+              <span>{viewScope === "all" ? "All Employee Leave Requests" : "My Leaves Management"}</span>
             </h1>
             <p
               className={`text-sm max-w-xl ${
                 isLight ? "text-slate-600" : "text-slate-400"
               }`}
             >
-              Track your leave balances, review submitted leave applications, and request time off.
+              {viewScope === "all"
+                ? "Review, approve, or decline leave applications submitted across your organization."
+                : "Track your leave balances, review submitted leave applications, and request time off."}
             </p>
           </div>
 
-          {/* Apply Leave CTA Button */}
-          <div>
+          {/* Scope Switcher for HR/Admin + Apply Leave CTA */}
+          <div className="flex flex-wrap items-center gap-3">
+            {isHR && (
+              <div
+                className={`p-1 rounded-2xl border flex items-center gap-1 backdrop-blur-md ${
+                  isLight
+                    ? "bg-slate-100 border-slate-200"
+                    : "bg-slate-950/80 border-slate-800"
+                }`}
+              >
+                <button
+                  onClick={() => setViewScope("my")}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    viewScope === "my"
+                      ? "bg-emerald-600 text-white shadow-md"
+                      : isLight
+                      ? "text-slate-600 hover:text-slate-900"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>My Leaves</span>
+                </button>
+                <button
+                  onClick={() => setViewScope("all")}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    viewScope === "all"
+                      ? "bg-emerald-600 text-white shadow-md"
+                      : isLight
+                      ? "text-slate-600 hover:text-slate-900"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>All Requests</span>
+                </button>
+              </div>
+            )}
+
             <button
               onClick={() => setShowApplyModal(true)}
               className="px-5 py-3 bg-gradient-to-r from-emerald-500 via-teal-600 to-indigo-600 hover:from-emerald-600 hover:to-indigo-700 active:scale-95 text-white font-semibold rounded-2xl shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all"
@@ -306,10 +426,10 @@ function MyLeaves() {
                 isLight ? "text-slate-600" : "text-slate-400"
               }`}
             >
-              Leave Balance
+              {viewScope === "all" ? "Approved Total" : "Leave Balance"}
             </div>
             <div className="text-2xl font-bold text-emerald-600 mt-1">
-              {metrics.balance} Days
+              {viewScope === "all" ? `${metrics.approved} Apps` : `${metrics.balance} Days`}
             </div>
           </div>
           <div
@@ -369,7 +489,7 @@ function MyLeaves() {
               Approved Leaves
             </div>
             <div className="text-2xl font-bold text-indigo-600 mt-1">
-              {metrics.approved} Days
+              {metrics.approved}
             </div>
           </div>
           <div
@@ -396,7 +516,7 @@ function MyLeaves() {
                 isLight ? "text-slate-600" : "text-slate-400"
               }`}
             >
-              Total Applied
+              Total Applications
             </div>
             <div
               className={`text-2xl font-bold mt-1 ${
@@ -473,7 +593,7 @@ function MyLeaves() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-16 space-y-3 text-slate-400">
             <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
-            <span className="text-sm font-medium">Loading leave applications...</span>
+            <span className="text-sm font-medium">Loading leave records from database...</span>
           </div>
         ) : filteredLeaves.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center space-y-3">
@@ -498,7 +618,7 @@ function MyLeaves() {
                 isLight ? "text-slate-600" : "text-slate-400"
               }`}
             >
-              You haven't submitted any leave requests under this category yet.
+              No leave applications match the selected criteria.
             </p>
           </div>
         ) : (
@@ -513,6 +633,7 @@ function MyLeaves() {
                   }`}
                 >
                   <th className="py-4 px-6">Leave Category</th>
+                  {viewScope === "all" && <th className="py-4 px-6">Applicant</th>}
                   <th className="py-4 px-6">Date Duration</th>
                   <th className="py-4 px-6">Reason / Remark</th>
                   <th className="py-4 px-6">Applied On</th>
@@ -528,11 +649,12 @@ function MyLeaves() {
                 {paginatedLeaves.map((l, i) => {
                   const statusBadge = getStatusBadge(l.status || "PENDING");
                   const StatusIcon = statusBadge.icon;
-                  const totalDays = calculateDays(l.start_date, l.end_date);
+                  const totalDays = l.totalDays || calculateDays(l.start_date, l.end_date);
+                  const isActioning = actionLoadingId === l._id;
 
                   return (
                     <tr
-                      key={l.lrid || i}
+                      key={l._id || l.lrid || i}
                       className={`transition-colors group ${
                         isLight ? "hover:bg-slate-50" : "hover:bg-slate-800/40"
                       }`}
@@ -557,7 +679,7 @@ function MyLeaves() {
                                   : "text-slate-100 group-hover:text-emerald-300"
                               }`}
                             >
-                              {l.leaveType?.type || "Leave Application"}
+                              {l.leaveType || l.leaveType?.type || "Leave Application"}
                             </div>
                             <div className="text-[10px] text-slate-500 font-mono">
                               ID: {l.lrid || `LR-${i + 1}`}
@@ -565,6 +687,18 @@ function MyLeaves() {
                           </div>
                         </div>
                       </td>
+
+                      {/* Applicant (in ALL requests mode) */}
+                      {viewScope === "all" && (
+                        <td className="py-4 px-6">
+                          <div className="font-semibold text-slate-900 dark:text-slate-100">
+                            {l.employeeName || "Employee"}
+                          </div>
+                          <div className="text-[10px] text-slate-500 font-mono">
+                            {l.employeeEmail || ""}
+                          </div>
+                        </td>
+                      )}
 
                       {/* Date Duration */}
                       <td className="py-4 px-6">
@@ -597,7 +731,7 @@ function MyLeaves() {
 
                       {/* Applied On */}
                       <td className="py-4 px-6 text-slate-400 font-mono">
-                        {l.applied_at || "2026-08-08"}
+                        {l.applied_at || "N/A"}
                       </td>
 
                       {/* Status */}
@@ -612,21 +746,53 @@ function MyLeaves() {
 
                       {/* Operations */}
                       <td className="py-4 px-6 text-right">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedLeaveId(l.lrid);
-                            setShowDeleteModal(true);
-                          }}
-                          className={`px-3 py-1.5 border font-medium rounded-xl text-xs flex items-center gap-1.5 transition-all inline-flex ml-auto active:scale-95 ${
-                            isLight
-                              ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
-                              : "bg-slate-950 text-red-400 border-slate-800 hover:bg-red-500/10 hover:border-red-500/30"
-                          }`}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          <span>Cancel</span>
-                        </button>
+                        {viewScope === "all" && isHR && l.status === "PENDING" ? (
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              disabled={isActioning}
+                              onClick={() => handleApprove(l._id)}
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium text-xs flex items-center gap-1 shadow-sm transition-all disabled:opacity-50"
+                            >
+                              {isActioning ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Check className="w-3.5 h-3.5" />
+                              )}
+                              <span>Approve</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={isActioning}
+                              onClick={() => handleReject(l._id)}
+                              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium text-xs flex items-center gap-1 shadow-sm transition-all disabled:opacity-50"
+                            >
+                              {isActioning ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <X className="w-3.5 h-3.5" />
+                              )}
+                              <span>Reject</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedLeaveId(l._id || l.lrid);
+                              setShowDeleteModal(true);
+                            }}
+                            className={`px-3 py-1.5 border font-medium rounded-xl text-xs flex items-center gap-1.5 transition-all inline-flex ml-auto active:scale-95 ${
+                              isLight
+                                ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                                : "bg-slate-950 text-red-400 border-slate-800 hover:bg-red-500/10 hover:border-red-500/30"
+                            }`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Cancel</span>
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );
