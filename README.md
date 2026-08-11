@@ -297,59 +297,59 @@ cd peoplecore
 
 ### 2. Set Up Environment Variables
 
-> **All services share the same MongoDB database and JWT secret.** Create a `.env` file inside each backend service folder using the exact values below.
+> **All services share the same MongoDB database and JWT secret.** Create a `.env` file inside each backend service folder.
 
 **`backend/auth-service/.env`**
 ```env
 PORT=5001
-MONGO_URI=mongodb://127.0.0.1:27017/peoplecore
-JWT_SECRET=peoplecore_secret_key_12345
+MONGO_URI=your_mongodb_connection_uri_here
+JWT_SECRET=your_jwt_secret_here
 ```
 
 **`backend/admin-service/.env`**
 ```env
 PORT=5002
-MONGO_URI=mongodb://127.0.0.1:27017/peoplecore
-JWT_SECRET=peoplecore_secret_key_12345
+MONGO_URI=your_mongodb_connection_uri_here
+JWT_SECRET=your_jwt_secret_here
 ```
 
 **`backend/user-service/.env`**
 ```env
 PORT=5004
-MONGO_URI=mongodb://127.0.0.1:27017/peoplecore
-JWT_SECRET=peoplecore_secret_key_12345
+MONGO_URI=your_mongodb_connection_uri_here
+JWT_SECRET=your_jwt_secret_here
 ```
 
 **`backend/notification-service/.env`**
 ```env
 PORT=5005
-MONGO_URI=mongodb://127.0.0.1:27017/peoplecore
-JWT_SECRET=peoplecore_secret_key_12345
+MONGO_URI=your_mongodb_connection_uri_here
+JWT_SECRET=your_jwt_secret_here
 ```
 
 **`backend/leave-service/.env`**
 ```env
 PORT=5006
-MONGO_URI=mongodb://127.0.0.1:27017/peoplecore
-JWT_SECRET=peoplecore_secret_key_12345
+MONGO_URI=your_mongodb_connection_uri_here
+JWT_SECRET=your_jwt_secret_here
 NOTIFICATION_SERVICE_URL=http://localhost:5005
 ```
 
 **`backend/attendance-service/.env`**
 ```env
 PORT=5007
-MONGO_URI=mongodb://127.0.0.1:27017/peoplecore
-JWT_SECRET=peoplecore_secret_key_12345
+MONGO_URI=your_mongodb_connection_uri_here
+JWT_SECRET=your_jwt_secret_here
 ```
 
 **`backend/payroll-service/.env`**
 ```env
 PORT=5008
-MONGO_URI=mongodb://127.0.0.1:27017/peoplecore
-JWT_SECRET=peoplecore_secret_key_12345
+MONGO_URI=your_mongodb_connection_uri_here
+JWT_SECRET=your_jwt_secret_here
 ```
 
-> **Note**: Change `JWT_SECRET` to a strong, random secret in production. For MongoDB Atlas, replace the URI with your Atlas connection string.
+> **Note**: Use the same `JWT_SECRET` across all services. For local MongoDB, use `mongodb://127.0.0.1:27017/peoplecore`. For MongoDB Atlas, replace with your Atlas connection string.
 
 ---
 
