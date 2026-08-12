@@ -380,23 +380,23 @@ sequenceDiagram
 
 ## Role-Based Access Control
 
-  Feature                   Employee   HR   Admin
-  ------------------------ ---------- ---- -------
-  Dashboard                    ✓       ✓      ✓
-  Personal Attendance          ✓       ✓      ✓
-  Attendance Statistics       ---      ✓      ✓
-  Apply Leave                  ✓       ✓      ✓
-  Approve/Reject Leave        ---      ✓      ✓
-  View All Leaves             ---      ✓      ✓
-  Personal Payslips            ✓       ✓      ✓
-  Configure Employee CTC      ---      ✓      ✓
-  Generate Payslips           ---      ✓      ✓
-  View All Payslips           ---      ✓      ✓
-  Personal Profile             ✓       ✓      ✓
-  Users Directory             ---      ✓      ✓
-  Account Approvals           ---      ✓      ✓
-  Announcements               ---      ✓      ✓
-  Notifications                ✓       ✓      ✓
+| Feature | EMPLOYEE | HR | ADMIN |
+|---|:---:|:---:|:---:|
+| View Dashboard | ✅ | ✅ | ✅ |
+| My Attendance | ✅ | ✅ | ✅ |
+| HR Attendance Stats | ❌ | ✅ | ✅ |
+| Apply Leave | ✅ | ✅ | ✅ |
+| Approve/Reject Leave | ❌ | ✅ | ✅ |
+| View All Leaves | ❌ | ✅ | ✅ |
+| My Payslip | ✅ | ✅ | ✅ |
+| Configure Employee CTC | ❌ | ✅ | ✅ |
+| Generate Payslips | ❌ | ✅ | ✅ |
+| View All Payslips | ❌ | ✅ | ✅ |
+| My Profile | ✅ | ✅ | ✅ |
+| Users Directory | ❌ | ✅ | ✅ |
+| Account Approvals | ❌ | ✅ | ✅ |
+| Post Announcements | ❌ | ✅ | ✅ |
+| Notifications | ✅ | ✅ | ✅ |
 
 ------------------------------------------------------------------------
 
