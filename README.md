@@ -763,14 +763,5 @@ git push origin feature/your-feature
 
 6.  Open a Pull Request.
 
-------------------------------------------------------------------------
 
-## License
 
-This project is licensed under the **MIT License**.
-
-------------------------------------------------------------------------
-
-## Author
-
-**Pratik Kamble**
