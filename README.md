@@ -771,9 +771,7 @@ This project is licensed under the **MIT License**.
 
 ------------------------------------------------------------------------
 
-::: {align="center"}
-:::
+## Author
 
-::: {align="center"}
-**Developed by Pratik Kamble**
-:::
+**Pratik Kamble**
+
