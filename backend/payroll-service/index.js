@@ -7,6 +7,7 @@ const authorizeRoles = require("./middleware/authorizeRoles");
 const SalaryStructure = require("./models/salaryStructure");
 const Payslip = require("./models/payslip");
 const User = require("./models/user");
+const razorpayInstance = require("./config/razorpayInstance");
 
 const app = express();
 const PORT = process.env.PORT || 5008;
@@ -62,11 +63,15 @@ const calculateSalaryComponents = (annualCtc) => {
 app.get("/payroll/my-structure", async (req, res) => {
   try {
     const userId = req.user.userId;
-    let structure = await SalaryStructure.findOne({ employeeId: userId }).lean();
+    let structure = await SalaryStructure.findOne({
+      employeeId: userId,
+    }).lean();
 
     if (!structure) {
       // Auto-create default salary structure for user if none exists
-      const user = await User.findById(userId).select("name email department designation");
+      const user = await User.findById(userId).select(
+        "name email department designation",
+      );
       const defaultComponents = calculateSalaryComponents(1200000); // Default 12 LPA CTC
 
       structure = await SalaryStructure.create({
@@ -80,7 +85,9 @@ app.get("/payroll/my-structure", async (req, res) => {
     res.status(200).json(structure);
   } catch (error) {
     console.error("Error fetching salary structure:", error.message);
-    res.status(500).json({ message: "Internal server error: " + error.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error: " + error.message });
   }
 });
 
@@ -88,11 +95,15 @@ app.get("/payroll/my-structure", async (req, res) => {
 app.get("/payroll/my-payslips", async (req, res) => {
   try {
     const userId = req.user.userId;
-    let payslips = await Payslip.find({ employeeId: userId }).sort({ payYear: -1, createdAt: -1 }).lean();
+    let payslips = await Payslip.find({ employeeId: userId })
+      .sort({ payYear: -1, createdAt: -1 })
+      .lean();
 
     if (payslips.length === 0) {
       // Seed a starter payslip for immediate visual feedback
-      const user = await User.findById(userId).select("name email department designation");
+      const user = await User.findById(userId).select(
+        "name email department designation",
+      );
       const structure = await SalaryStructure.findOne({ employeeId: userId });
       const comp = structure || calculateSalaryComponents(1200000);
 
@@ -137,7 +148,10 @@ app.get("/payroll/payslip/:id", async (req, res) => {
     }
 
     // Security check: must be owner or ADMIN/HR
-    if (payslip.employeeId.toString() !== req.user.userId && !["ADMIN", "HR"].includes(req.user.role)) {
+    if (
+      payslip.employeeId.toString() !== req.user.userId &&
+      !["ADMIN", "HR"].includes(req.user.role)
+    ) {
       return res.status(403).json({ message: "Access denied" });
     }
 
@@ -149,114 +163,180 @@ app.get("/payroll/payslip/:id", async (req, res) => {
 });
 
 // ─── GET /payroll/all-structures (Admin / HR) ───
-app.get("/payroll/all-structures", authorizeRoles("ADMIN", "HR"), async (req, res) => {
-  try {
-    const structures = await SalaryStructure.find().sort({ createdAt: -1 }).lean();
-    res.status(200).json(structures);
-  } catch (error) {
-    console.error("Error fetching all structures:", error.message);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+app.get(
+  "/payroll/all-structures",
+  authorizeRoles("ADMIN", "HR"),
+  async (req, res) => {
+    try {
+      const structures = await SalaryStructure.find()
+        .sort({ createdAt: -1 })
+        .lean();
+      res.status(200).json(structures);
+    } catch (error) {
+      console.error("Error fetching all structures:", error.message);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
 
 // ─── POST /payroll/salary-structure (Configure CTC for employee) ───
-app.post("/payroll/salary-structure", authorizeRoles("ADMIN", "HR"), async (req, res) => {
-  try {
-    const { employeeId, annualCtc, bankName, accountNumber, ifscCode } = req.body;
+app.post(
+  "/payroll/salary-structure",
+  authorizeRoles("ADMIN", "HR"),
+  async (req, res) => {
+    try {
+      const { employeeId, annualCtc, bankName, accountNumber, ifscCode } =
+        req.body;
 
-    if (!employeeId || !annualCtc) {
-      return res.status(400).json({ message: "Employee ID and annual CTC are required" });
+      if (!employeeId || !annualCtc) {
+        return res
+          .status(400)
+          .json({ message: "Employee ID and annual CTC are required" });
+      }
+
+      const employee = await User.findById(employeeId).select(
+        "name email department designation",
+      );
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+
+      const components = calculateSalaryComponents(Number(annualCtc));
+
+      const structure = await SalaryStructure.findOneAndUpdate(
+        { employeeId },
+        {
+          employeeName: employee.name,
+          employeeEmail: employee.email,
+          ...components,
+          bankName: bankName || "HDFC Bank",
+          accountNumber: accountNumber || "50100492817264",
+          ifscCode: ifscCode || "HDFC0001234",
+        },
+        { upsert: true, new: true },
+      );
+
+      res
+        .status(200)
+        .json({ message: "Salary structure updated successfully", structure });
+    } catch (error) {
+      console.error("Error setting salary structure:", error.message);
+      res
+        .status(500)
+        .json({ message: "Internal server error: " + error.message });
     }
-
-    const employee = await User.findById(employeeId).select("name email department designation");
-    if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
-
-    const components = calculateSalaryComponents(Number(annualCtc));
-
-    const structure = await SalaryStructure.findOneAndUpdate(
-      { employeeId },
-      {
-        employeeName: employee.name,
-        employeeEmail: employee.email,
-        ...components,
-        bankName: bankName || "HDFC Bank",
-        accountNumber: accountNumber || "50100492817264",
-        ifscCode: ifscCode || "HDFC0001234",
-      },
-      { upsert: true, new: true }
-    );
-
-    res.status(200).json({ message: "Salary structure updated successfully", structure });
-  } catch (error) {
-    console.error("Error setting salary structure:", error.message);
-    res.status(500).json({ message: "Internal server error: " + error.message });
-  }
-});
+  },
+);
 
 // ─── POST /payroll/generate-payslips (Batch generate payslips for a month) ───
-app.post("/payroll/generate-payslips", authorizeRoles("ADMIN", "HR"), async (req, res) => {
-  try {
-    const { payMonth, payYear } = req.body;
-    const month = payMonth || "August 2026";
-    const year = payYear || 2026;
+app.post(
+  "/payroll/generate-payslips",
+  authorizeRoles("ADMIN", "HR"),
+  async (req, res) => {
+    try {
+      const { payMonth, payYear } = req.body;
+      const month = payMonth || "August 2026";
+      const year = payYear || 2026;
 
-    const allUsers = await User.find({ status: "ACCEPTED" }).select("_id name email department designation");
-    let generatedCount = 0;
+      const allUsers = await User.find({ status: "ACCEPTED" }).select(
+        "_id name email department designation",
+      );
+      let generatedCount = 0;
 
-    for (const user of allUsers) {
-      let struct = await SalaryStructure.findOne({ employeeId: user._id });
-      const comp = struct || calculateSalaryComponents(1200000);
+      for (const user of allUsers) {
+        let struct = await SalaryStructure.findOne({ employeeId: user._id });
+        const comp = struct || calculateSalaryComponents(1200000);
 
-      const payslipId = `PS-${year}-${Date.now().toString().slice(-4)}-${Math.floor(Math.random() * 100)}`;
+        const payslipId = `PS-${year}-${Date.now().toString().slice(-4)}-${Math.floor(Math.random() * 100)}`;
 
-      try {
-        await Payslip.create({
-          payslipId,
-          employeeId: user._id,
-          employeeName: user.name,
-          employeeEmail: user.email,
-          department: user.department || "Engineering",
-          designation: user.designation || "Software Engineer",
-          payMonth: month,
-          payYear: year,
-          basic: comp.basic,
-          hra: comp.hra,
-          specialAllowance: comp.specialAllowance,
-          pfDeduction: comp.pfDeduction,
-          taxDeduction: comp.taxDeduction,
-          grossSalary: comp.grossSalary,
-          netSalary: comp.netSalary,
-          status: "PAID",
-          paidOn: new Date().toISOString().split("T")[0],
-        });
-        generatedCount++;
-      } catch (dupErr) {
-        // Skip duplicate payslips for same employee + payMonth
+        try {
+          await Payslip.create({
+            payslipId,
+            employeeId: user._id,
+            employeeName: user.name,
+            employeeEmail: user.email,
+            department: user.department || "Engineering",
+            designation: user.designation || "Software Engineer",
+            payMonth: month,
+            payYear: year,
+            basic: comp.basic,
+            hra: comp.hra,
+            specialAllowance: comp.specialAllowance,
+            pfDeduction: comp.pfDeduction,
+            taxDeduction: comp.taxDeduction,
+            grossSalary: comp.grossSalary,
+            netSalary: comp.netSalary,
+            status: "PAID",
+            paidOn: new Date().toISOString().split("T")[0],
+          });
+          generatedCount++;
+        } catch (dupErr) {
+          // Skip duplicate payslips for same employee + payMonth
+        }
       }
-    }
 
-    res.status(200).json({
-      message: `Generated ${generatedCount} payslip(s) for ${month}`,
-      generatedCount,
-    });
-  } catch (error) {
-    console.error("Error generating payslips:", error.message);
-    res.status(500).json({ message: "Internal server error: " + error.message });
-  }
-});
+      res.status(200).json({
+        message: `Generated ${generatedCount} payslip(s) for ${month}`,
+        generatedCount,
+      });
+    } catch (error) {
+      console.error("Error generating payslips:", error.message);
+      res
+        .status(500)
+        .json({ message: "Internal server error: " + error.message });
+    }
+  },
+);
 
 // ─── GET /payroll/all-payslips (Admin / HR) ───
-app.get("/payroll/all-payslips", authorizeRoles("ADMIN", "HR"), async (req, res) => {
-  try {
-    const payslips = await Payslip.find().sort({ createdAt: -1 }).lean();
-    res.status(200).json(payslips);
-  } catch (error) {
-    console.error("Error fetching all payslips:", error.message);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+app.get(
+  "/payroll/all-payslips",
+  authorizeRoles("ADMIN", "HR"),
+  async (req, res) => {
+    try {
+      const payslips = await Payslip.find().sort({ createdAt: -1 }).lean();
+      res.status(200).json(payslips);
+    } catch (error) {
+      console.error("Error fetching all payslips:", error.message);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
+
+app.post(
+  "/payroll/create-payment-order",
+  authorizeRoles("ADMIN", "HR"),
+  async (req, res) => {
+    try {
+      const { amount, currency, receipt } = req.body;
+
+      if (!amount || !currency || !receipt) {
+        return res
+          .status(400)
+          .json({ message: "Amount, currency, and receipt are required" });
+      }
+      razorpayInstance.orders.create(
+        {
+          amount: amount * 100, // Convert to smallest currency unit
+          currency,
+          receipt,
+        },
+        (err, order) => {
+          if (err) {
+            console.error("Razorpay order creation error:", err);
+            return res
+              .status(500)
+              .json({ message: "Payment order creation failed" });
+          }
+          res.status(200).json(order);
+        },
+      );
+    } catch (error) {
+      console.error("Error creating payment order:", error.message);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
 
 app.listen(PORT, () => {
   console.log(`Payroll Service running at http://localhost:${PORT}`);

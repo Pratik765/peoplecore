@@ -2,54 +2,57 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Login from "./components/Login.jsx";
-import Signup from "./components/Signup.jsx";
 import { Provider } from "react-redux";
 import peopleCoreStore from "./store/peopleCoreStore.js";
-import Home from "./components/Home.jsx";
-import Users from "./components/Users.jsx";
-import PendingRequest from "./components/PendingRequest.jsx";
+
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 import AdminRoute from "./routes/AdminRoute.jsx";
+
+// Page level orchestrators from pages/ directory
+import LoginPage from "./pages/LoginPage.jsx";
+import SignupPage from "./pages/SignupPage.jsx";
+import VerifyOtpPage from "./pages/VerifyOtpPage.jsx";
+import HomePage from "./pages/HomePage.jsx";
+import UsersPage from "./pages/UsersPage.jsx";
+import PendingRequestPage from "./pages/PendingRequestPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
+import LeavesPage from "./pages/LeavesPage.jsx";
+import AttendancePage from "./pages/AttendancePage.jsx";
+import PayrollPage from "./pages/PayrollPage.jsx";
+import NotificationsPage from "./pages/NotificationsPage.jsx";
+import AnnouncementsPage from "./pages/AnnouncementsPage.jsx";
+import SubscriptionPage from "./pages/SubscriptionPage.jsx";
 import Unauthorized from "./components/Unauthorized.jsx";
-import Profile from "./components/Profile.jsx";
-import VerifyOtp from "./components/VerifyOtp.jsx";
-import MyLeaves from "./components/MyLeaves.jsx";
-import Attendance from "./components/Attendance.jsx";
-import Payroll from "./components/Payroll.jsx";
-import Notifications from "./components/Notifications.jsx";
-import Announcements from "./components/Announcements.jsx";
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
       // Public routes
-      { path: "/", element: <Login /> },
-      { path: "/signup", element: <Signup /> },
-      { path: "/verify-otp", element: <VerifyOtp /> },
+      { path: "/", element: <LoginPage /> },
+      { path: "/signup", element: <SignupPage /> },
+      { path: "/verify-otp", element: <VerifyOtpPage /> },
 
       // Protected routes (login required)
       {
         element: <ProtectedRoute />,
         children: [
-          { path: "/home", element: <Home /> },
-          { path: "/profile", element: <Profile /> },
-          { path: "/attendance", element: <Attendance /> },
-          { path: "/payroll", element: <Payroll /> },
-          { path: "/my-leaves", element: <MyLeaves /> },
-          { path: "/notifications", element: <Notifications /> },
-          { path: "/announcements", element: <Announcements /> },
+          { path: "/home", element: <HomePage /> },
+          { path: "/profile", element: <ProfilePage /> },
+          { path: "/attendance", element: <AttendancePage /> },
+          { path: "/payroll", element: <PayrollPage /> },
+          { path: "/my-leaves", element: <LeavesPage /> },
+          { path: "/notifications", element: <NotificationsPage /> },
+          { path: "/announcements", element: <AnnouncementsPage /> },
 
           // Admin-only routes
           {
             element: <AdminRoute />,
             children: [
-              { path: "/users", element: <Users /> },
-              {
-                path: "/pending-request",
-                element: <PendingRequest />,
-              },
+              { path: "/users", element: <UsersPage /> },
+              { path: "/pending-request", element: <PendingRequestPage /> },
+              { path: "/subscription", element: <SubscriptionPage /> },
             ],
           },
         ],
