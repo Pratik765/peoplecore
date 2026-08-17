@@ -174,7 +174,11 @@ export function NotificationsPage() {
                     {isUnread && (
                       <button
                         onClick={() => handleMarkRead(item._id)}
-                        className="p-1 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-slate-800"
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          isLight
+                            ? "text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
+                            : "text-slate-400 hover:text-indigo-300 hover:bg-slate-800"
+                        }`}
                         title="Mark Read"
                       >
                         <Check className="w-3.5 h-3.5" />
@@ -182,7 +186,11 @@ export function NotificationsPage() {
                     )}
                     <button
                       onClick={() => handleDelete(item._id)}
-                      className="p-1 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/20"
+                      className={`p-1.5 rounded-lg transition-colors ${
+                        isLight
+                          ? "text-slate-400 hover:text-red-600 hover:bg-red-50"
+                          : "text-slate-400 hover:text-red-400 hover:bg-red-500/20"
+                      }`}
                       title="Delete"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

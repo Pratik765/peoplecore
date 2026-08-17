@@ -24,17 +24,25 @@ export function AttendanceHistoryTable({
           <tr
             key={row._id || idx}
             className={`transition-colors duration-150 ${
-              isLight ? "hover:bg-slate-50/80" : "hover:bg-slate-800/40"
+              isLight
+                ? "hover:bg-indigo-50/50"
+                : "hover:bg-slate-800/50"
             }`}
           >
-            <td className="py-3 px-4 font-mono font-medium">{formatDate(row.date)}</td>
+            <td className="py-3.5 px-5 font-mono text-xs font-medium align-middle whitespace-nowrap">{formatDate(row.date)}</td>
             {showEmployeeColumn && (
-              <td className="py-3 px-4 font-semibold">{row.userName || row.userId || "Employee"}</td>
+              <td className="py-3.5 px-5 font-semibold align-middle whitespace-nowrap">{row.userName || row.userId || "Employee"}</td>
             )}
-            <td className="py-3 px-4 font-mono">{row.checkIn ? new Date(row.checkIn).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--"}</td>
-            <td className="py-3 px-4 font-mono">{row.checkOut ? new Date(row.checkOut).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--"}</td>
-            <td className="py-3 px-4 font-mono font-bold text-indigo-400">{row.workHours ? `${row.workHours} hrs` : "--"}</td>
-            <td className="py-3 px-4">
+            <td className="py-3.5 px-5 font-mono text-xs text-slate-500 dark:text-slate-400 align-middle whitespace-nowrap">
+              {row.checkIn ? new Date(row.checkIn).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--"}
+            </td>
+            <td className="py-3.5 px-5 font-mono text-xs text-slate-500 dark:text-slate-400 align-middle whitespace-nowrap">
+              {row.checkOut ? new Date(row.checkOut).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--:--"}
+            </td>
+            <td className="py-3.5 px-5 font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 align-middle whitespace-nowrap">
+              {row.workHours ? `${row.workHours} hrs` : "--"}
+            </td>
+            <td className="py-3.5 px-5 align-middle whitespace-nowrap">
               <Badge variant={row.status === "PRESENT" ? "emerald" : row.status === "LATE" ? "amber" : "red"}>
                 {row.status || "PRESENT"}
               </Badge>

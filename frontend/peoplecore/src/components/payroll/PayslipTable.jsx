@@ -20,24 +20,30 @@ export function PayslipTable({ payslips = [], loading = false, pagination, showE
           <tr
             key={slip._id || idx}
             className={`transition-colors duration-150 ${
-              isLight ? "hover:bg-slate-50/80" : "hover:bg-slate-800/40"
+              isLight
+                ? "hover:bg-indigo-50/50"
+                : "hover:bg-slate-800/50"
             }`}
           >
-            <td className="py-3 px-4 font-bold">{slip.month || "Month"} {slip.year || "2026"}</td>
+            <td className="py-3.5 px-5 font-bold align-middle whitespace-nowrap">{slip.month || slip.payMonth || "Month"} {slip.year || slip.payYear || "2026"}</td>
             {showEmployeeColumn && (
-              <td className="py-3 px-4 font-semibold">{slip.userName || slip.employeeName || slip.employeeId || "Employee"}</td>
+              <td className="py-3.5 px-5 font-semibold align-middle whitespace-nowrap">{slip.userName || slip.employeeName || slip.employeeId || "Employee"}</td>
             )}
-            <td className="py-3 px-4 font-mono font-bold text-emerald-400">{formatCurrency(slip.netSalary || slip.amount || 95000)}</td>
-            <td className="py-3 px-4">
+            <td className="py-3.5 px-5 font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400 align-middle whitespace-nowrap">{formatCurrency(slip.netSalary || slip.amount || 95000)}</td>
+            <td className="py-3.5 px-5 align-middle whitespace-nowrap">
               <Badge variant={slip.status === "PAID" ? "emerald" : "amber"}>
                 {slip.status || "DISBURSED"}
               </Badge>
             </td>
-            <td className="py-3 px-4 text-slate-400">{formatDate(slip.createdAt || slip.issuedDate)}</td>
-            <td className="py-3 px-4">
+            <td className="py-3.5 px-5 text-slate-500 dark:text-slate-400 font-mono text-xs align-middle whitespace-nowrap">{formatDate(slip.createdAt || slip.issuedDate || slip.paidOn)}</td>
+            <td className="py-3.5 px-5 align-middle whitespace-nowrap">
               <button
-                onClick={() => alert(`Downloading payslip for ${slip.month} ${slip.year}...`)}
-                className="p-1.5 rounded-lg text-indigo-400 hover:bg-indigo-500/10 transition-colors"
+                onClick={() => alert(`Downloading payslip for ${slip.month || slip.payMonth} ${slip.year || slip.payYear}...`)}
+                className={`p-2 rounded-xl transition-all ${
+                  isLight
+                    ? "text-indigo-600 hover:bg-indigo-50 border border-indigo-100"
+                    : "text-indigo-400 hover:bg-indigo-500/10 border border-indigo-500/20"
+                }`}
                 title="Download Payslip PDF"
               >
                 <Download className="w-4 h-4" />

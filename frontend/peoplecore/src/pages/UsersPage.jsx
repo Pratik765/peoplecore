@@ -92,21 +92,27 @@ export function UsersPage() {
             <tr
               key={u._id || idx}
               className={`transition-colors duration-150 ${
-                isLight ? "hover:bg-slate-50/80" : "hover:bg-slate-800/40"
+                isLight
+                  ? "hover:bg-indigo-50/50"
+                  : "hover:bg-slate-800/50"
               }`}
             >
-              <td className="py-3.5 px-4 font-semibold flex items-center gap-3">
-                <UserAvatar name={u.name || "User"} size="sm" />
-                <span>{u.name || "N/A"}</span>
+              <td className="py-3.5 px-5 align-middle whitespace-nowrap">
+                <div className="flex items-center gap-3 font-semibold">
+                  <UserAvatar name={u.name || "User"} size="sm" />
+                  <span className={isLight ? "text-slate-900" : "text-slate-100"}>{u.name || "N/A"}</span>
+                </div>
               </td>
-              <td className="py-3.5 px-4 text-slate-400 flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5" />
-                <span>{u.email}</span>
+              <td className="py-3.5 px-5 align-middle whitespace-nowrap">
+                <div className="flex items-center gap-1.5 font-mono text-xs text-slate-500 dark:text-slate-400">
+                  <Mail className="w-3.5 h-3.5 shrink-0" />
+                  <span>{u.email}</span>
+                </div>
               </td>
-              <td className="py-3.5 px-4">
+              <td className="py-3.5 px-5 align-middle whitespace-nowrap">
                 <RoleBadge role={u.role || "EMPLOYEE"} />
               </td>
-              <td className="py-3.5 px-4">
+              <td className="py-3.5 px-5 align-middle whitespace-nowrap">
                 <Badge variant={u.status === "PENDING" ? "amber" : u.isActive || u.status === "APPROVED" ? "emerald" : "red"}>
                   {u.status || (u.isActive ? "ACTIVE" : "INACTIVE")}
                 </Badge>

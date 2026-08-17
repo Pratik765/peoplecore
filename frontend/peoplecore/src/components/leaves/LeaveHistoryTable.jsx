@@ -35,23 +35,31 @@ export function LeaveHistoryTable({
             <tr
               key={leave._id || idx}
               className={`transition-colors duration-150 ${
-                isLight ? "hover:bg-slate-50/80" : "hover:bg-slate-800/40"
+                isLight
+                  ? "hover:bg-indigo-50/50"
+                  : "hover:bg-slate-800/50"
               }`}
             >
               {showEmployeeColumn && (
-                <td className="py-3 px-4 font-semibold">{leave.userName || leave.userId || "Employee"}</td>
+                <td className="py-3.5 px-5 font-semibold align-middle whitespace-nowrap">
+                  {leave.userName || leave.userId || "Employee"}
+                </td>
               )}
-              <td className="py-3 px-4 font-medium">{leave.leaveType || leave.type || "Paid Annual Leave"}</td>
-              <td className="py-3 px-4 font-mono">
+              <td className="py-3.5 px-5 font-medium align-middle whitespace-nowrap">
+                {leave.leaveType || leave.type || "Paid Annual Leave"}
+              </td>
+              <td className="py-3.5 px-5 font-mono text-xs align-middle whitespace-nowrap">
                 {formatDate(leave.startDate)} {leave.endDate ? `- ${formatDate(leave.endDate)}` : ""}
               </td>
-              <td className="py-3 px-4 max-w-xs truncate text-slate-400">{leave.remark || leave.reason || "N/A"}</td>
-              <td className="py-3 px-4">
+              <td className="py-3.5 px-5 max-w-xs truncate text-slate-500 dark:text-slate-400 align-middle">
+                {leave.remark || leave.reason || "N/A"}
+              </td>
+              <td className="py-3.5 px-5 align-middle whitespace-nowrap">
                 <Badge variant={leave.status === "APPROVED" ? "emerald" : isPending ? "amber" : "red"}>
                   {leave.status || "PENDING"}
                 </Badge>
               </td>
-              <td className="py-3 px-4">
+              <td className="py-3.5 px-5 align-middle whitespace-nowrap">
                 <div className="flex items-center gap-2">
                   {showEmployeeColumn && isPending && onApprove && onReject && (
                     <>

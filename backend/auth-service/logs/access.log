@@ -584,3 +584,37 @@
 -----------------------------------------------------------------------
 2026-08-17T07:43:24.985Z | GET /health | userId=anonymous | role=N/A | status=undefined | ip=::1
 -----------------------------------------------------------------------
+2026-08-17T08:04:23.888Z | POST /login | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:04:25.320Z | GET /health | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:10:39.060Z | POST /login | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:10:39.926Z | GET /health | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:15:23.553Z | POST /login | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:15:24.876Z | GET /health | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:28:03.780Z | POST /login | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:28:04.581Z | GET /health | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:28:23.890Z | GET /health | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:28:51.801Z | POST /login | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:29:00.509Z | POST /login | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:29:01.163Z | GET /health | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:30:49.924Z | POST /login | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:31:29.497Z | GET /health | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:31:30.420Z | GET /health | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:32:08.481Z | POST /login | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------
+2026-08-17T08:32:09.914Z | GET /health | userId=anonymous | role=N/A | status=undefined | ip=::1
+-----------------------------------------------------------------------

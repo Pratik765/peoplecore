@@ -8,7 +8,7 @@ import { fetchLegacyLeaveStats } from "../api/leaveApi";
 import { fetchAnnouncements } from "../api/announcementApi";
 import { API_BASE_URLS, MICROSERVICE_PORTS } from "../api/apiConfig";
 
-import { Users, Clock, Activity, Shield, FileText, Calendar, Briefcase, CheckCircle2, Sparkles } from "lucide-react";
+import { Users, Clock, Activity, Shield, FileText, Calendar, Briefcase, CheckCircle2, Sparkles, User } from "lucide-react";
 
 export const useDashboardMetrics = () => {
   const reduxDispatch = useDispatch();

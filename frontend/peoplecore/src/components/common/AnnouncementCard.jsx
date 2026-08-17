@@ -53,7 +53,11 @@ export function AnnouncementCard({
                 {onPin && (
                   <button
                     onClick={() => onPin(announcement._id)}
-                    className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white"
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      isLight
+                        ? "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    }`}
                     title={announcement.isPinned ? "Unpin" : "Pin"}
                   >
                     <Pin className="w-3.5 h-3.5" />
@@ -62,7 +66,11 @@ export function AnnouncementCard({
                 {onEdit && (
                   <button
                     onClick={() => onEdit(announcement)}
-                    className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white"
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      isLight
+                        ? "text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                        : "text-slate-400 hover:text-white hover:bg-slate-800"
+                    }`}
                     title="Edit"
                   >
                     <Pencil className="w-3.5 h-3.5" />
@@ -71,7 +79,11 @@ export function AnnouncementCard({
                 {onDelete && (
                   <button
                     onClick={() => onDelete(announcement._id)}
-                    className="p-1 rounded-lg hover:bg-red-500/20 text-red-400"
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      isLight
+                        ? "text-slate-400 hover:text-red-600 hover:bg-red-50"
+                        : "text-slate-400 hover:text-red-400 hover:bg-red-500/20"
+                    }`}
                     title="Delete"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

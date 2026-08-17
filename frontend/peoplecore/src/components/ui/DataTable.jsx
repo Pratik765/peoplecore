@@ -22,7 +22,7 @@ export function DataTable({ headers = [], children, loading = false, empty = fal
           : "border-slate-800/80 bg-slate-900/70 shadow-lg shadow-slate-950/40 backdrop-blur-md"
       } ${className}`}
     >
-      <table className="w-full text-left text-xs border-collapse">
+      <table className="w-full min-w-[640px] text-left text-xs border-collapse">
         <thead>
           <tr
             className={`border-b text-[11px] font-semibold tracking-wider uppercase ${
@@ -32,7 +32,7 @@ export function DataTable({ headers = [], children, loading = false, empty = fal
             }`}
           >
             {headers.map((header, idx) => (
-              <th key={idx} className="py-3.5 px-4 font-semibold">
+              <th key={idx} className="py-3.5 px-5 font-semibold whitespace-nowrap">
                 {header}
               </th>
             ))}

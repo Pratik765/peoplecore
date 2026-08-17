@@ -32,7 +32,6 @@
 - [API Reference](#-api-reference)
 - [Internal Interservice APIs](#-internal-interservice-apis)
 - [Contributing](#-contributing)
-- [License](#-license)
 
 ---
 
@@ -550,12 +549,8 @@ These internal endpoints are called service-to-service without requiring gateway
 
 ---
 
-## 📄 License
-
-Distributed under the **MIT License**. See `LICENSE` for more information.
-
 <div align="center">
 
-Made with ❤️ by the **PeopleCore** Team
+Made with ❤️ by **Pratik Kamble**
 
 </div>
