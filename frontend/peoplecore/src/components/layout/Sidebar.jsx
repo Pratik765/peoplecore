@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import useTheme from "../../hooks/useTheme";
 import useAuth from "../../hooks/useAuth";
-import RoleBadge from "../common/RoleBadge";
 import {
   Users,
   LayoutDashboard,
@@ -87,12 +86,6 @@ export function Sidebar() {
               </span>
             </div>
           </Link>
-
-          {/* Access Role */}
-          <div className={`rounded-xl p-3 border ${isLight ? "bg-slate-50 border-slate-200" : "bg-slate-950/60 border-slate-800"}`}>
-            <div className="text-[10px] font-semibold uppercase tracking-wider mb-1.5 text-slate-500">Access Role</div>
-            <RoleBadge role={userRole} />
-          </div>
 
           {/* Navigation Links */}
           <div className="space-y-1">

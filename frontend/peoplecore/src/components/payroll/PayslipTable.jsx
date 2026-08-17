@@ -17,7 +17,12 @@ export function PayslipTable({ payslips = [], loading = false, pagination, showE
     <div className="space-y-3">
       <DataTable headers={headers} loading={loading} empty={payslips.length === 0} emptyMessage="No payslips generated.">
         {pagination.paginatedItems.map((slip, idx) => (
-          <tr key={slip._id || idx} className={`hover:bg-slate-800/30 transition-colors ${isLight ? "border-slate-200" : "border-slate-800/50"}`}>
+          <tr
+            key={slip._id || idx}
+            className={`transition-colors duration-150 ${
+              isLight ? "hover:bg-slate-50/80" : "hover:bg-slate-800/40"
+            }`}
+          >
             <td className="py-3 px-4 font-bold">{slip.month || "Month"} {slip.year || "2026"}</td>
             {showEmployeeColumn && (
               <td className="py-3 px-4 font-semibold">{slip.userName || slip.employeeName || slip.employeeId || "Employee"}</td>

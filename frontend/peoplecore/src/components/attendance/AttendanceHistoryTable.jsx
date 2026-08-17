@@ -21,7 +21,12 @@ export function AttendanceHistoryTable({
     <div className="space-y-3">
       <DataTable headers={headers} loading={loading} empty={history.length === 0} emptyMessage="No attendance records logged.">
         {pagination.paginatedItems.map((row, idx) => (
-          <tr key={row._id || idx} className={`hover:bg-slate-800/30 transition-colors ${isLight ? "border-slate-200" : "border-slate-800/50"}`}>
+          <tr
+            key={row._id || idx}
+            className={`transition-colors duration-150 ${
+              isLight ? "hover:bg-slate-50/80" : "hover:bg-slate-800/40"
+            }`}
+          >
             <td className="py-3 px-4 font-mono font-medium">{formatDate(row.date)}</td>
             {showEmployeeColumn && (
               <td className="py-3 px-4 font-semibold">{row.userName || row.userId || "Employee"}</td>

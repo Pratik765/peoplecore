@@ -23,12 +23,13 @@ export function Button({
   };
 
   const variants = {
-    primary: "bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white shadow-lg shadow-indigo-500/25 active:scale-95",
-    amber: "bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-bold shadow-lg shadow-amber-500/25 active:scale-95",
-    danger: "bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-500/25 active:scale-95",
+    primary: "bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm shadow-indigo-600/25 active:scale-95",
+    emerald: "bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-600/25 active:scale-95",
+    amber: "bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-sm shadow-amber-500/25 active:scale-95",
+    danger: "bg-red-600 hover:bg-red-500 text-white shadow-sm shadow-red-600/25 active:scale-95",
     secondary: isLight
-      ? "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
-      : "bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700",
+      ? "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80"
+      : "bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700/80",
     ghost: isLight
       ? "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
       : "text-slate-400 hover:bg-slate-800 hover:text-slate-200",

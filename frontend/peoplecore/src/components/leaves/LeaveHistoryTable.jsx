@@ -32,7 +32,12 @@ export function LeaveHistoryTable({
           const isLoadingThis = actionLoadingId === leave._id;
 
           return (
-            <tr key={leave._id || idx} className={`hover:bg-slate-800/30 transition-colors ${isLight ? "border-slate-200" : "border-slate-800/50"}`}>
+            <tr
+              key={leave._id || idx}
+              className={`transition-colors duration-150 ${
+                isLight ? "hover:bg-slate-50/80" : "hover:bg-slate-800/40"
+              }`}
+            >
               {showEmployeeColumn && (
                 <td className="py-3 px-4 font-semibold">{leave.userName || leave.userId || "Employee"}</td>
               )}

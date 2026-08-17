@@ -105,7 +105,12 @@ export function PendingRequestPage() {
           emptyMessage="No registration applications pending approval."
         >
           {pagination.paginatedItems.map((u, idx) => (
-            <tr key={u._id || idx} className={`hover:bg-slate-800/30 transition-colors ${isLight ? "border-slate-200" : "border-slate-800/50"}`}>
+            <tr
+              key={u._id || idx}
+              className={`transition-colors duration-150 ${
+                isLight ? "hover:bg-slate-50/80" : "hover:bg-slate-800/40"
+              }`}
+            >
               <td className="py-3.5 px-4 font-semibold flex items-center gap-3">
                 <UserAvatar name={u.name || "User"} size="sm" />
                 <span>{u.name || "N/A"}</span>
