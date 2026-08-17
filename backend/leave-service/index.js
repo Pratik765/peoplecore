@@ -5,11 +5,32 @@ const connectDB = require("./config/db");
 const verifyToken = require("./middleware/verifyToken");
 const authorizeRoles = require("./middleware/authorizeRoles");
 const Leave = require("./models/leave");
-const User = require("./models/user");
 
 const app = express();
 const PORT = process.env.PORT || 5006;
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || "http://localhost:5005";
+const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://localhost:5004";
+
+// Interservice Helpers
+const getUserById = async (userId) => {
+  try {
+    const res = await fetch(`${USER_SERVICE_URL}/internal/users/${userId}`);
+    if (res.ok) return await res.json();
+  } catch (err) {
+    console.error(`[LeaveService] Error fetching user ${userId}:`, err.message);
+  }
+  return null;
+};
+
+const getUsersByRole = async (roles) => {
+  try {
+    const res = await fetch(`${USER_SERVICE_URL}/internal/users?role=${roles.join(",")}`);
+    if (res.ok) return await res.json();
+  } catch (err) {
+    console.error(`[LeaveService] Error fetching users by role:`, err.message);
+  }
+  return [];
+};
 
 // Helper: Fire-and-forget notification to notification-service
 const sendNotification = async (token, { userId, type, title, message, metadata }) => {
@@ -60,7 +81,7 @@ app.post("/leaves", async (req, res) => {
       return res.status(400).json({ message: "Start date, end date, and reason are required" });
     }
 
-    const employee = await User.findById(req.user.userId).select("name email role");
+    const employee = await getUserById(req.user.userId);
 
     // Calculate total days
     const s = new Date(start_date);
@@ -86,7 +107,7 @@ app.post("/leaves", async (req, res) => {
 
     // Notify HR / Admins
     try {
-      const hrUsers = await User.find({ role: { $in: ["ADMIN", "HR"] } }).select("_id");
+      const hrUsers = await getUsersByRole(["ADMIN", "HR"]);
       const token = req.headers.authorization;
       for (const hr of hrUsers) {
         sendNotification(token, {
@@ -134,7 +155,7 @@ app.get("/leaves/all", authorizeRoles("ADMIN", "HR"), async (req, res) => {
 app.put("/leaves/:id/approve", authorizeRoles("ADMIN", "HR"), async (req, res) => {
   try {
     const { id } = req.params;
-    const reviewer = await User.findById(req.user.userId).select("name");
+    const reviewer = await getUserById(req.user.userId);
 
     const leave = await Leave.findByIdAndUpdate(
       id,
@@ -171,7 +192,7 @@ app.put("/leaves/:id/approve", authorizeRoles("ADMIN", "HR"), async (req, res) =
 app.put("/leaves/:id/reject", authorizeRoles("ADMIN", "HR"), async (req, res) => {
   try {
     const { id } = req.params;
-    const reviewer = await User.findById(req.user.userId).select("name");
+    const reviewer = await getUserById(req.user.userId);
 
     const leave = await Leave.findByIdAndUpdate(
       id,

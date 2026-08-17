@@ -18,18 +18,19 @@ export const fetchAllSalaryStructures = () => {
 };
 
 export const configureEmployeeCtc = (employeeId, ctc) => {
-  return apiFetch(`${API_BASE_URLS.PAYROLL}/payroll/configure-ctc`, {
+  return apiFetch(`${API_BASE_URLS.PAYROLL}/payroll/salary-structure`, {
     method: "POST",
-    body: JSON.stringify({ employeeId, ctc }),
+    body: JSON.stringify({ employeeId, annualCtc: ctc }),
   });
 };
 
 export const generateBatchPayslips = (month, year) => {
-  return apiFetch(`${API_BASE_URLS.PAYROLL}/payroll/generate-batch-payslips`, {
+  return apiFetch(`${API_BASE_URLS.PAYROLL}/payroll/generate-payslips`, {
     method: "POST",
-    body: JSON.stringify({ month, year }),
+    body: JSON.stringify({ payMonth: month, payYear: year }),
   });
 };
+
 
 export const createRazorpayPaymentOrder = (paymentData) => {
   return apiFetch(`${API_BASE_URLS.PAYROLL}/payroll/create-payment-order`, {

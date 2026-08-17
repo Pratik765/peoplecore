@@ -27,6 +27,7 @@ export const deleteAnnouncement = (id) => {
 
 export const togglePinAnnouncement = (id) => {
   return apiFetch(`${API_BASE_URLS.ADMIN}/announcements/${id}/pin`, {
-    method: "PATCH",
+    method: "PUT",
   });
 };
+

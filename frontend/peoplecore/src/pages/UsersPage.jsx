@@ -13,11 +13,13 @@ import Pagination from "../components/ui/Pagination";
 import Badge from "../components/ui/Badge";
 import RoleBadge from "../components/common/RoleBadge";
 import UserAvatar from "../components/common/UserAvatar";
+import { API_BASE_URLS } from "../api/apiConfig";
 import { Users as UsersIcon, Shield, Clock, CheckCircle2, Mail, Layers } from "lucide-react";
 
 export function UsersPage() {
   const { isLight } = useTheme();
-  const { state, loading } = useFetch("http://localhost:5002/users");
+  const { state, loading } = useFetch(`${API_BASE_URLS.ADMIN}/users`);
+
 
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");

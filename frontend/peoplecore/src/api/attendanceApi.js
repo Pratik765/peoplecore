@@ -6,25 +6,26 @@ export const fetchTodayAttendance = () => {
 };
 
 export const fetchMyAttendanceHistory = () => {
-  return apiFetch(`${API_BASE_URLS.ATTENDANCE}/attendance/my-history`);
+  return apiFetch(`${API_BASE_URLS.ATTENDANCE}/attendance/my`);
 };
 
 export const fetchAllAttendanceHistory = () => {
-  return apiFetch(`${API_BASE_URLS.ATTENDANCE}/attendance/all-history`);
+  return apiFetch(`${API_BASE_URLS.ATTENDANCE}/attendance/all`);
 };
 
 export const fetchHrAttendanceStats = () => {
-  return apiFetch(`${API_BASE_URLS.ATTENDANCE}/attendance/hr-stats`);
+  return apiFetch(`${API_BASE_URLS.ATTENDANCE}/attendance/stats`);
 };
 
 export const checkInAttendance = () => {
-  return apiFetch(`${API_BASE_URLS.ATTENDANCE}/attendance/check-in`, {
+  return apiFetch(`${API_BASE_URLS.ATTENDANCE}/attendance/checkin`, {
     method: "POST",
   });
 };
 
 export const checkOutAttendance = () => {
-  return apiFetch(`${API_BASE_URLS.ATTENDANCE}/attendance/check-out`, {
-    method: "POST",
+  return apiFetch(`${API_BASE_URLS.ATTENDANCE}/attendance/checkout`, {
+    method: "PUT",
   });
 };
+

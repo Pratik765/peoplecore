@@ -2,20 +2,21 @@ import { API_BASE_URLS } from "./apiConfig";
 import { apiFetch } from "./apiClient";
 
 export const fetchMyNotifications = () => {
-  return apiFetch(`${API_BASE_URLS.NOTIFICATION}/notifications/my`);
+  return apiFetch(`${API_BASE_URLS.NOTIFICATION}/notifications`);
 };
 
 export const markNotificationRead = (notificationId) => {
   return apiFetch(`${API_BASE_URLS.NOTIFICATION}/notifications/${notificationId}/read`, {
-    method: "PATCH",
+    method: "PUT",
   });
 };
 
 export const markAllNotificationsRead = () => {
   return apiFetch(`${API_BASE_URLS.NOTIFICATION}/notifications/read-all`, {
-    method: "PATCH",
+    method: "PUT",
   });
 };
+
 
 export const deleteNotification = (notificationId) => {
   return apiFetch(`${API_BASE_URLS.NOTIFICATION}/notifications/${notificationId}`, {

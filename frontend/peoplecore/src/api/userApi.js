@@ -6,7 +6,7 @@ export const fetchMyProfile = () => {
 };
 
 export const updateMyProfile = (profileData) => {
-  return apiFetch(`${API_BASE_URLS.USER}/user/me`, {
+  return apiFetch(`${API_BASE_URLS.USER}/user/update`, {
     method: "PUT",
     body: JSON.stringify(profileData),
   });
@@ -20,14 +20,16 @@ export const fetchPendingApprovals = () => {
   return apiFetch(`${API_BASE_URLS.ADMIN}/account-approval`);
 };
 
-export const approveUserAccount = (userId) => {
-  return apiFetch(`${API_BASE_URLS.ADMIN}/account-approval/approve/${userId}`, {
-    method: "POST",
+export const approveUserAccount = (userId, role = "EMPLOYEE") => {
+  return apiFetch(`${API_BASE_URLS.ADMIN}/approve-user/${userId}`, {
+    method: "PUT",
+    body: JSON.stringify({ role }),
   });
 };
 
 export const rejectUserAccount = (userId) => {
-  return apiFetch(`${API_BASE_URLS.ADMIN}/account-approval/reject/${userId}`, {
-    method: "POST",
+  return apiFetch(`${API_BASE_URLS.ADMIN}/reject-user/${userId}`, {
+    method: "PUT",
   });
 };
+

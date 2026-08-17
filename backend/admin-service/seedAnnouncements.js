@@ -1,24 +1,33 @@
 const mongoose = require("mongoose");
 const Announcement = require("./models/announcement");
-const user = require("./models/user");
+
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  role: String,
+  status: String,
+});
 
 async function seedAnnouncements() {
   try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/peoplecore");
-    console.log("Admin Service: Connected to MongoDB for seeding announcements...");
+    const userConn = await mongoose.createConnection("mongodb://127.0.0.1:27017/pc_user_db").asPromise();
+    await mongoose.connect("mongodb://127.0.0.1:27017/pc_admin_db");
+    console.log("Admin Service: Connected to pc_admin_db for seeding announcements...");
+
+    const User = userConn.model("EmployeeProfile", userSchema, "users");
 
     // Find Admin and HR users to set as posters
-    const adminUser = await user.findOne({ role: "ADMIN" });
-    const hrUser = await user.findOne({ role: "HR" });
+    const adminUser = await User.findOne({ role: "ADMIN" });
+    const hrUser = await User.findOne({ role: "HR" });
 
     if (!adminUser) {
-      console.log("Admin user not found. Please seed users first.");
+      console.log("Admin user not found in pc_user_db. Please seed users first.");
       process.exit(0);
     }
 
     // Clear existing announcements
     await Announcement.deleteMany({});
-    console.log("Cleared old announcements.");
+    console.log("Cleared old announcements in pc_admin_db.");
 
     const announcements = [
       {
@@ -27,7 +36,7 @@ async function seedAnnouncements() {
         priority: "EVENT",
         isPinned: true,
         postedBy: adminUser._id,
-        postedByName: adminUser.name || "Aditya Sharma",
+        postedByName: adminUser.name,
         postedByRole: "ADMIN",
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hrs ago
       },
@@ -37,38 +46,30 @@ async function seedAnnouncements() {
         priority: "URGENT",
         isPinned: true,
         postedBy: hrUser ? hrUser._id : adminUser._id,
-        postedByName: hrUser ? hrUser.name : "Priya Patel",
+        postedByName: hrUser ? hrUser.name : adminUser.name,
         postedByRole: hrUser ? "HR" : "ADMIN",
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
       },
       {
-        title: "🎉 Q3 All-Hands Meeting & Recognition Awards",
-        content: "Join us this Friday at 4:00 PM IST for our Quarterly All-Hands Meeting. We will celebrate team achievements, highlight top performers, and discuss our Q4 product roadmap.",
-        priority: "INFO",
-        isPinned: false,
-        postedBy: adminUser._id,
-        postedByName: adminUser.name || "Aditya Sharma",
-        postedByRole: "ADMIN",
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
-      },
-      {
-        title: "💡 Health & Wellness Benefits Program",
-        content: "Our updated employee health insurance policy now includes expanded dental & vision coverage along with free quarterly mental health consultations. Visit the HR portal or contact Priya Patel for policy enrollment.",
+        title: "💡 Health & Wellness Benefits Enhancement",
+        content: "Starting next month, our comprehensive corporate health insurance coverage is expanding to include mental wellness consultations, annual full-body checkups, and gym membership reimbursements up to ₹25,000/year.",
         priority: "INFO",
         isPinned: false,
         postedBy: hrUser ? hrUser._id : adminUser._id,
-        postedByName: hrUser ? hrUser.name : "Priya Patel",
+        postedByName: hrUser ? hrUser.name : adminUser.name,
         postedByRole: hrUser ? "HR" : "ADMIN",
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72), // 3 days ago
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
       },
     ];
 
     await Announcement.insertMany(announcements);
-    console.log(`Successfully seeded ${announcements.length} realistic announcements in MongoDB!`);
+    console.log(`Successfully seeded ${announcements.length} announcements into pc_admin_db!`);
 
+    await userConn.close();
     await mongoose.disconnect();
+    process.exit(0);
   } catch (err) {
-    console.error("Error seeding announcements:", err.message);
+    console.error("Seeding error:", err);
     process.exit(1);
   }
 }

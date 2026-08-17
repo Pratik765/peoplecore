@@ -77,7 +77,7 @@ export function SignupPage() {
           label="Full Name"
           type="text"
           icon={User}
-          placeholder="John Doe"
+          placeholder="e.g. Rahul Sharma"
           value={state.name}
           onChange={handleChange}
           required

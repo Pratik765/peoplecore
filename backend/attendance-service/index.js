@@ -5,10 +5,39 @@ const connectDB = require("./config/db");
 const verifyToken = require("./middleware/verifyToken");
 const authorizeRoles = require("./middleware/authorizeRoles");
 const Attendance = require("./models/attendance");
-const User = require("./models/user");
 
 const app = express();
 const PORT = process.env.PORT || 5007;
+const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://localhost:5004";
+
+// Interservice Helpers
+const getUserById = async (userId) => {
+  try {
+    const res = await fetch(`${USER_SERVICE_URL}/internal/users/${userId}`);
+    if (res.ok) return await res.json();
+  } catch (err) {
+    console.error(`[AttendanceService] Error fetching user ${userId}:`, err.message);
+  }
+  return null;
+};
+
+const getActiveUsersCount = async () => {
+  try {
+    const res = await fetch(`${USER_SERVICE_URL}/internal/users?status=ACCEPTED`);
+    if (res.ok) {
+      const users = await res.json();
+      if (users.length > 0) return users.length;
+    }
+    const allRes = await fetch(`${USER_SERVICE_URL}/internal/users`);
+    if (allRes.ok) {
+      const allUsers = await allRes.json();
+      return allUsers.length;
+    }
+  } catch (err) {
+    console.error(`[AttendanceService] Error fetching active users count:`, err.message);
+  }
+  return 0;
+};
 
 // Database connection
 connectDB();
@@ -68,7 +97,7 @@ app.post("/attendance/checkin", async (req, res) => {
       });
     }
 
-    const employee = await User.findById(userId).select("name email");
+    const employee = await getUserById(userId);
     const now = new Date();
     const checkInTime = getTimeString(now);
 
@@ -193,11 +222,7 @@ app.get("/attendance/all", authorizeRoles("ADMIN", "HR"), async (req, res) => {
 app.get("/attendance/stats", authorizeRoles("ADMIN", "HR"), async (req, res) => {
   try {
     const todayStr = getTodayDateString();
-    // Count all active users (ACCEPTED status). Fallback: count all users if none are ACCEPTED.
-    let totalUsers = await User.countDocuments({ status: "ACCEPTED" });
-    if (totalUsers === 0) {
-      totalUsers = await User.countDocuments({});
-    }
+    const totalUsers = await getActiveUsersCount();
     const todayRecords = await Attendance.find({ date: todayStr });
 
     const present = todayRecords.filter((r) => r.status === "PRESENT").length;

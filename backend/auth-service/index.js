@@ -13,6 +13,23 @@ const authorizeRoles = require("./middleware/authorizeRoles");
 const requestLogger = require("./middleware/accessLogger");
 const errorLogger = require("./middleware/errorLogger");
 const PORT = process.env.PORT || 5001;
+const JWT_SECRET = process.env.JWT_SECRET || "peoplecore_dev_jwt_secret";
+const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://localhost:5004";
+
+const createUserProfile = async (profile) => {
+  try {
+    const res = await fetch(`${USER_SERVICE_URL}/internal/users`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profile),
+    });
+    if (!res.ok) {
+      console.error("[AuthService] Failed to create user profile:", await res.text());
+    }
+  } catch (err) {
+    console.error("[AuthService] User profile creation error:", err.message);
+  }
+};
 
 connectDB();
 
@@ -45,10 +62,18 @@ app.post("/register", async (req, res) => {
       return res.status(409).json({ message: "User already exists" });
     }
     const hashedPass = await bcrypt.hash(password, 10);
-    await user.create({
+    const newUser = await user.create({
       name,
       email,
       password: hashedPass,
+    });
+    await createUserProfile({
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      status: newUser.status,
+      isActive: newUser.isActive,
     });
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -86,7 +111,7 @@ app.post("/login", async (req, res) => {
         userId: existingUser._id,
         role: existingUser.role,
       },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || JWT_SECRET,
       { expiresIn: "1d" },
     );
     res.status(200).json({
@@ -112,6 +137,39 @@ app.get("/profile/:id", async (req, res) => {
     res.status(200).json(existingUser);
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// ─── INTERNAL INTER-SERVICE ENDPOINTS (NO JWT REQUIRED) ───
+
+// PUT /internal/users/:id/approve — Used by admin-service
+app.put("/internal/users/:id/approve", async (req, res) => {
+  try {
+    const { role } = req.body;
+    const updated = await user.findByIdAndUpdate(
+      req.params.id,
+      { role, status: "ACCEPTED" },
+      { new: true, runValidators: true }
+    ).select("-password");
+    if (!updated) return res.status(404).json({ message: "User not found" });
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// PUT /internal/users/:id/reject — Used by admin-service
+app.put("/internal/users/:id/reject", async (req, res) => {
+  try {
+    const updated = await user.findByIdAndUpdate(
+      req.params.id,
+      { status: "REJECTED" },
+      { new: true, runValidators: true }
+    ).select("-password");
+    if (!updated) return res.status(404).json({ message: "User not found" });
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 

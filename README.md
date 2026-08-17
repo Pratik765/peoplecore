@@ -1,767 +1,561 @@
-# PeopleCore --- Human Resource Management System
+# PeopleCore — Human Resource Management System
 
-::: {align="center"}
-**A full-stack HR management platform built with React, Node.js,
-Express, MongoDB, and a microservices-based backend.**
+<div align="center">
 
-![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
-![Redux
-Toolkit](https://img.shields.io/badge/Redux_Toolkit-2-764ABC?style=for-the-badge&logo=redux&logoColor=white)
-![Tailwind
-CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
-:::
+**A production-ready, full-stack HR management platform built with React 19, Node.js, Express, MongoDB, and a decoupled Database-Per-Service microservices architecture.**
 
-------------------------------------------------------------------------
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-4-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Database_Per_Service-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-2-764ABC?style=for-the-badge&logo=redux&logoColor=white)](https://redux-toolkit.js.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
-## Contents
+</div>
 
--   [Overview](#overview)
--   [Key Capabilities](#key-capabilities)
--   [Technology Stack](#technology-stack)
--   [System Architecture](#system-architecture)
--   [Backend Services](#backend-services)
--   [Authentication and
-    Authorization](#authentication-and-authorization)
--   [Role-Based Access Control](#role-based-access-control)
--   [Project Structure](#project-structure)
--   [Getting Started](#getting-started)
--   [Environment Variables](#environment-variables)
--   [API Reference](#api-reference)
--   [Design System](#design-system)
--   [Testing](#testing)
--   [Contributing](#contributing)
--   [License](#license)
+---
 
-------------------------------------------------------------------------
+## 📑 Contents
 
-## Overview
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Technology Stack](#-technology-stack)
+- [System Architecture](#-system-architecture)
+- [Database-Per-Service Architecture](#-database-per-service-architecture)
+- [Microservices Overview](#-microservices-overview)
+- [Role-Based Access Control](#-role-based-access-control)
+- [Default Team Accounts](#-default-team-accounts)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [Environment Configuration](#-environment-configuration)
+- [API Reference](#-api-reference)
+- [Internal Interservice APIs](#-internal-interservice-apis)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-**PeopleCore** is a full-stack Human Resource Management System designed
-to manage core employee and HR operations through a modular
-microservices-based backend and a React single-page application.
+---
 
-The platform separates major HR domains into independent backend
-services, with an **API Gateway** providing a single external entry
-point. Authentication is handled using **JWT**, passwords are securely
-hashed with **bcryptjs**, and MongoDB is used for persistence.
+## 🌟 Overview
 
-The application provides role-aware workflows for:
+**PeopleCore** is a modern Human Resource Management System (HRMS) engineered to streamline organizational management, employee self-service, leave administration, attendance logging, notifications, announcements, and payroll processing.
 
--   Employee self-service
--   HR operations
--   Administrative management
--   Attendance
--   Leave management
--   Payroll and payslips
--   Employee profiles
--   Notifications
--   Company announcements
--   Registration and email OTP verification
+The backend is architected with **9 independent microservices** governed by an **API Gateway**, employing a **Database-Per-Service pattern** where each service manages its own isolated MongoDB database. Cross-service communication is achieved via lightweight internal HTTP endpoints with `user-service` acting as the single source of truth for user identities and profiles.
 
-> **Architecture note:** The current implementation uses MongoDB
-> connections configured per service, while the environment
-> configuration currently points services to the same PeopleCore MongoDB
-> database. This is a practical development setup, but strict production
-> microservice isolation would normally use separate databases or
-> logical data ownership per service.
+---
 
-------------------------------------------------------------------------
+## 🚀 Key Features
 
-## Key Capabilities
+### 🔐 Authentication & Identity
+- **JWT Authentication:** Stateless token-based auth with secure password hashing via `bcryptjs`.
+- **Email OTP Verification:** Automated OTP delivery and verification for registration.
+- **Account Approval Workflow:** Admin/HR review and approval for newly registered employees.
+- **Role-Based Authorization:** Strict tiered access control for `ADMIN`, `HR`, and `EMPLOYEE`.
 
-### Authentication and Security
+### 👥 Employee Management
+- **Directory & Profiles:** Full employee profiles with department, designation, contact info, bio, avatar, and join dates.
+- **Dynamic Onboarding:** Real-time updates and account status management (`PENDING`, `ACCEPTED`, `REJECTED`).
 
--   User registration with email verification
--   Email OTP verification through a dedicated OTP service
--   JWT-based authentication
--   Password hashing with `bcryptjs`
--   Account approval workflow
--   Role-based authorization middleware
--   Protected frontend routes
--   Separate admin route protection
+### ⏱️ Attendance Tracking
+- **Daily Check-In / Check-Out:** Live timestamp logging with status tags (`PRESENT`, `LATE`, `HALF_DAY`).
+- **Personal History & Analytics:** Real-time monthly and daily breakdown for employees.
+- **Admin/HR Attendance Stats:** High-level organizational overview with presentee and absenteeism metrics.
 
-### Employee Management
+### 🌴 Leave Management
+- **Application Workflow:** Request Paid, Casual, Sick, or Unpaid leaves with real-time day calculations.
+- **Review Pipeline:** Interactive approval and rejection workflow for HR and Admins.
+- **Status Badges & History:** Instant status updates with rejection reasons and historical logs.
 
--   Employee profile management
--   Employee directory for HR/Admin
--   Department and designation information
--   Join date and location management
--   Profile avatar selection
+### 💰 Payroll & Compensation
+- **Salary Structure Management:** Configure employee annual CTC with auto-calculated components (Basic, HRA, Special Allowance, PF, TDS).
+- **Automated Payslip Generation:** Batch payslip generation by pay period with downloadable/printable slips.
+- **Direct Bank Details:** Configurable bank, account number, and IFSC records.
 
-### Attendance
+### 📢 Announcements & Notifications
+- **Broadcast Notices:** Company-wide announcements with priority tagging (`URGENT`, `EVENT`, `INFO`) and pinning.
+- **In-App Notifications:** Real-time system alerts, leave approval alerts, and unread badge counters.
 
--   Daily check-in and check-out
--   Automatic timestamp capture
--   Late-arrival detection
--   Half-day detection
--   Attendance history
--   Status tracking
--   HR/Admin attendance statistics
+---
 
-### Leave Management
-
--   Leave application
--   Multiple leave types
--   Automatic leave-day calculation
--   HR/Admin approval and rejection
--   Leave cancellation
--   Leave history and filtering
--   Notification integration
-
-### Payroll
-
--   Employee CTC configuration
--   Salary structure calculation
--   Monthly payslip generation
--   Payslip history
--   HR/Admin payroll management
--   Printable payslips
--   INR currency formatting
-
-### Notifications
-
--   In-app notifications
--   Unread notification count
--   Notification history
--   Mark-all-as-read
--   Clear-all functionality
--   Notifications for account and leave events
-
-### Announcements
-
--   Company-wide announcements
--   Priority levels
--   Pin/unpin functionality
--   Create, update, and delete operations
--   HR/Admin access control
-
-### Frontend Experience
-
--   React 19 + Vite SPA
--   Redux Toolkit state management
--   React Router protected routes
--   Responsive layouts
--   Dark/light theme
--   Tailwind CSS styling
--   Mobile, tablet, and desktop support
-
-------------------------------------------------------------------------
-
-## Technology Stack
+## 🛠 Technology Stack
 
 ### Frontend
+| Technology | Version | Purpose |
+| :--- | :---: | :--- |
+| **React** | 19.x | Modern Component-Based SPA UI |
+| **Vite** | 7.x | Next-gen Frontend Tooling & Dev Server |
+| **Tailwind CSS** | 4.x | Utility-first Design System & Dark Mode |
+| **Redux Toolkit** | 2.x | Centralized Client State Management |
+| **React Router DOM** | 7.x | Client-side Declarative Routing |
+| **Lucide React** | 0.475+ | Minimalist Icon System |
 
-  Technology           Version Purpose
-  ------------------ --------- -----------------------------------
-  React                     19 UI development
-  Vite                       7 Build tool and development server
-  Tailwind CSS               4 Styling and responsive UI
-  Redux Toolkit              2 Global state management
-  React Router DOM           7 Client-side routing
-  Lucide React           0.475 UI icons
+### Backend Microservices
+| Technology | Purpose |
+| :--- | :--- |
+| **Node.js** | Non-blocking Event-driven JavaScript Runtime |
+| **Express.js** | Robust REST API Framework |
+| **MongoDB & Mongoose** | Dedicated Database-Per-Service Persistence Layer |
+| **http-proxy-middleware** | High-performance Reverse Proxy in API Gateway |
+| **JSON Web Tokens (JWT)** | Secure Stateless Token Auth |
+| **bcryptjs** | Industry-standard Salted Password Hashing |
+| **dotenv** | Environment Variable Management |
 
-### Backend
+---
 
-  Technology              Purpose
-  ----------------------- ---------------------------
-  Node.js                 JavaScript runtime
-  Express.js              REST API framework
-  MongoDB                 Data persistence
-  Mongoose                MongoDB ODM
-  JSON Web Token (JWT)    Authentication
-  bcryptjs                Password hashing
-  http-proxy-middleware   API Gateway reverse proxy
-  dotenv                  Environment configuration
+## 🏗 System Architecture
 
-------------------------------------------------------------------------
-
-## System Architecture
-
-PeopleCore uses a **microservices-oriented architecture**. The React
-application communicates with the backend through the API Gateway, which
-routes requests to the appropriate domain service.
-
-There is **no message broker or asynchronous event bus** in the current
-architecture.
-
-``` mermaid
+```mermaid
 flowchart TB
-
-    USER["User"]
-
     subgraph CLIENT["Client Layer"]
-        REACT["React 19 SPA<br/>Vite"]
+        REACT["React 19 SPA (Vite)<br/>Port 5173"]
     end
 
-    subgraph EDGE["API Access Layer"]
-        GATEWAY["API Gateway<br/>Port 5000<br/>Reverse Proxy"]
+    subgraph GATEWAY_LAYER["Edge & Routing"]
+        GW["API Gateway<br/>Port 5000<br/>(Reverse Proxy)"]
     end
 
-    subgraph SERVICES["Backend Microservices"]
-
-        AUTH["Auth Service<br/>Port 5001"]
-        ADMIN["Admin Service<br/>Port 5002"]
-        OTP["OTP Service"]
-        USER_SVC["User Service<br/>Port 5004"]
-        NOTIFICATION["Notification Service<br/>Port 5005"]
-        LEAVE["Leave Service<br/>Port 5006"]
-        ATTENDANCE["Attendance Service<br/>Port 5007"]
-        PAYROLL["Payroll Service<br/>Port 5008"]
-
+    subgraph SERVICES["Microservices Layer"]
+        AUTH["Auth Service<br/>:5001"]
+        ADMIN["Admin Service<br/>:5002"]
+        OTP["OTP Service<br/>:5003"]
+        USER["User Service<br/>:5004<br/><i>(Source of Truth)</i>"]
+        NOTIF["Notification Service<br/>:5005"]
+        LEAVE["Leave Service<br/>:5006"]
+        ATTEND["Attendance Service<br/>:5007"]
+        PAYROLL["Payroll Service<br/>:5008"]
     end
 
-    subgraph DATA["MongoDB"]
-        MONGO["PeopleCore MongoDB"]
+    subgraph DATABASES["Database-Per-Service (MongoDB)"]
+        DB_AUTH[("pc_auth_db")]
+        DB_ADMIN[("pc_admin_db")]
+        DB_OTP[("pc_otp_db")]
+        DB_USER[("pc_user_db")]
+        DB_NOTIF[("pc_notification_db")]
+        DB_LEAVE[("pc_leave_db")]
+        DB_ATTEND[("pc_attendance_db")]
+        DB_PAYROLL[("pc_payroll_db")]
     end
 
-    subgraph EXTERNAL["External Integration"]
-        EMAIL["Email Provider"]
-    end
+    %% Client to Gateway
+    REACT -->|"HTTP / REST<br/>(/pc/*)"| GW
 
-    USER -->|HTTPS| REACT
-    REACT -->|HTTPS / REST| GATEWAY
+    %% Gateway to Services
+    GW -->|/pc/auth| AUTH
+    GW -->|/pc/admin| ADMIN
+    GW -->|/pc/otp| OTP
+    GW -->|/pc/user| USER
+    GW -->|/pc/notification| NOTIF
+    GW -->|/pc/leave| LEAVE
+    GW -->|/pc/attendance| ATTEND
+    GW -->|/pc/payroll| PAYROLL
 
-    GATEWAY --> AUTH
-    GATEWAY --> ADMIN
-    GATEWAY --> OTP
-    GATEWAY --> USER_SVC
-    GATEWAY --> NOTIFICATION
-    GATEWAY --> LEAVE
-    GATEWAY --> ATTENDANCE
-    GATEWAY --> PAYROLL
+    %% Services to DBs
+    AUTH --- DB_AUTH
+    ADMIN --- DB_ADMIN
+    OTP --- DB_OTP
+    USER --- DB_USER
+    NOTIF --- DB_NOTIF
+    LEAVE --- DB_LEAVE
+    ATTEND --- DB_ATTEND
+    PAYROLL --- DB_PAYROLL
 
-    AUTH --> MONGO
-    ADMIN --> MONGO
-    OTP --> MONGO
-    USER_SVC --> MONGO
-    NOTIFICATION --> MONGO
-    LEAVE --> MONGO
-    ATTENDANCE --> MONGO
-    PAYROLL --> MONGO
-
-    OTP -->|OTP Email| EMAIL
+    %% Interservice Communication (HTTP)
+    AUTH -.->|"Sync Profile (POST)"| USER
+    ADMIN -.->|"Fetch User (GET)"| USER
+    ADMIN -.->|"Approve/Reject (PUT)"| AUTH
+    ADMIN -.->|"Approve/Reject (PUT)"| USER
+    LEAVE -.->|"Fetch Requester/HR (GET)"| USER
+    LEAVE -.->|"Push Alerts (POST)"| NOTIF
+    ATTEND -.->|"Verify User (GET)"| USER
+    PAYROLL -.->|"Verify Employee (GET)"| USER
+    PAYROLL -.->|"Push Payslip Alerts (POST)"| NOTIF
 ```
 
-### Architecture Principles
+---
 
--   **Single external entry point:** the frontend communicates with
-    backend APIs through the API Gateway.
--   **Domain separation:** each major HR domain is implemented as an
-    independent service.
--   **Independent service processes:** services run independently on
-    their configured ports.
--   **JWT-based security:** protected APIs use JWT authentication and
-    role-based authorization.
--   **Direct REST communication:** service integrations use HTTP/REST
-    rather than a message broker.
--   **Current database model:** services use MongoDB connections, with
-    the current environment configuration pointing to the same
-    PeopleCore database.
+## 🗄️ Database-Per-Service Architecture
 
-------------------------------------------------------------------------
+Each backend microservice maintains its own dedicated, isolated MongoDB database hosted on the instance (`mongodb://127.0.0.1:27017`):
 
-## Backend Services
+| Microservice | Port | MongoDB Database | Primary Collections Owned |
+| :--- | :---: | :--- | :--- |
+| **Auth Service** | `5001` | `pc_auth_db` | `users` (Credentials, Status, Role, Password Hash) |
+| **Admin Service** | `5002` | `pc_admin_db` | `announcements` |
+| **OTP Service** | `5003` | `pc_otp_db` | `otps` (OTP Tokens, Expiry) |
+| **User Service** | `5004` | `pc_user_db` | `users` (Full Profiles, Department, Contact, Bio) |
+| **Notification Service** | `5005` | `pc_notification_db` | `notifications` |
+| **Leave Service** | `5006` | `pc_leave_db` | `leaves` |
+| **Attendance Service** | `5007` | `pc_attendance_db` | `attendances` |
+| **Payroll Service** | `5008` | `pc_payroll_db` | `salarystructures`, `payslips` |
 
-  ---------------------------------------------------------------------
-  Service                                     Port Responsibility
-  -------------------- --------------------------- --------------------
-  **API Gateway**                           `5000` Single external
-                                                   entry point and
-                                                   reverse proxy
+> **Data Consistency:** When a user registers or gets seeded, their primary `_id` (ObjectId) is shared across `pc_auth_db` and `pc_user_db`, allowing decoupled cross-service HTTP lookups.
 
-  **Auth Service**                          `5001` Registration, login,
-                                                   password hashing,
-                                                   JWT generation
+---
 
-  **Admin Service**                         `5002` User management,
-                                                   approvals,
-                                                   announcements
+## 📦 Microservices Overview
 
-  **OTP Service**            Configured separately Email OTP and
-                                                   registration
-                                                   verification
-
-  **User Service**                          `5004` Employee profile
-                                                   management
-
-  **Notification                            `5005` In-app notifications
-  Service**                                        
-
-  **Leave Service**                         `5006` Leave requests and
-                                                   approvals
-
-  **Attendance                              `5007` Check-in/out,
-  Service**                                        attendance history
-                                                   and statistics
-
-  **Payroll Service**                       `5008` Salary structures
-                                                   and payslips
-  ---------------------------------------------------------------------
-
-### Service Responsibilities
-
-**Auth Service** - Registration - Login - Password hashing - JWT
-generation - Authentication-related operations
-
-**Admin Service** - Employee directory - Account approval/rejection -
-Role assignment - Announcements
-
-**OTP Service** - Registration OTP generation/verification - Email-based
-verification
-
-**User Service** - Employee profile retrieval - Profile updates
-
-**Notification Service** - Notification creation - Notification
-retrieval - Unread count - Read/clear operations
-
-**Leave Service** - Leave submission - Leave history - Leave
-approval/rejection - Leave cancellation
-
-**Attendance Service** - Check-in - Check-out - Attendance history -
-Attendance statistics
-
-**Payroll Service** - Salary structure - CTC configuration - Monthly
-payslip generation - Payslip retrieval
-
-------------------------------------------------------------------------
-
-## Authentication and Authorization
-
-The authentication flow is based on JWT.
-
-``` mermaid
+```mermaid
 sequenceDiagram
-    participant U as User
-    participant F as React Frontend
-    participant G as API Gateway
-    participant A as Auth Service
-    participant DB as MongoDB
+    autonumber
+    actor User as Employee / Admin
+    participant UI as React Frontend
+    participant GW as API Gateway (:5000)
+    participant Auth as Auth Service (:5001)
+    participant UserSvc as User Service (:5004)
 
-    U->>F: Enter registration/login details
-
-    F->>G: Authentication request
-    G->>A: Route request
-
-    A->>DB: Validate/store credentials
-    DB-->>A: Result
-
-    A->>A: Hash/verify password
-    A->>A: Generate JWT
-
-    A-->>G: Authentication response
-    G-->>F: JWT response
-    F-->>U: Authenticated session
-
-    U->>F: Access protected feature
-    F->>G: Request + JWT
-    G->>A: Validate/authenticate request
-
-    A-->>G: Authorization result
-    G->>F: Protected resource response
+    User->>UI: Submit Login Credentials
+    UI->>GW: POST /pc/auth/login
+    GW->>Auth: POST /login
+    Auth->>Auth: Validate Credentials & Status (ACCEPTED)
+    Auth-->>GW: Return JWT + User Basic Data
+    GW-->>UI: Store Token in localStorage
+    UI->>GW: GET /pc/user/user/me (with Bearer Token)
+    GW->>UserSvc: GET /user/me
+    UserSvc-->>GW: Full Profile Data
+    GW-->>UI: Populate Redux Store & Route to Dashboard
 ```
 
-### Security Controls
+---
 
--   Passwords are hashed with `bcryptjs`.
--   JWT is used for authentication.
--   Protected backend endpoints use authentication middleware.
--   Role-based authorization is applied to restricted operations.
--   React uses protected routes for authenticated pages.
--   Administrative pages use dedicated route protection.
+## 🛡️ Role-Based Access Control
 
-> The exact JWT transport mechanism should be kept aligned with the
-> implementation in the individual services. Do not document HttpOnly
-> cookies unless the current code explicitly implements them.
+| Feature / Action | EMPLOYEE | HR | ADMIN |
+| :--- | :---: | :---: | :---: |
+| **Personal Dashboard & Stats** | ✅ | ✅ | ✅ |
+| **Clock-in / Clock-out Attendance** | ✅ | ✅ | ✅ |
+| **View Personal Attendance History** | ✅ | ✅ | ✅ |
+| **View Company Attendance Statistics** | ❌ | ✅ | ✅ |
+| **Apply for Leave** | ✅ | ✅ | ✅ |
+| **Cancel Personal Pending Leave** | ✅ | ✅ | ✅ |
+| **Approve / Reject Team Leaves** | ❌ | ✅ | ✅ |
+| **View Company-wide Leaves** | ❌ | ✅ | ✅ |
+| **View Personal Payslips & CTC** | ✅ | ✅ | ✅ |
+| **Configure Employee Salary (CTC)** | ❌ | ✅ | ✅ |
+| **Batch Generate Monthly Payslips** | ❌ | ✅ | ✅ |
+| **View & Update Own Profile** | ✅ | ✅ | ✅ |
+| **Access Employee Directory** | ❌ | ✅ | ✅ |
+| **Approve / Reject Account Registrations** | ❌ | ✅ | ✅ |
+| **Publish Company Announcements** | ❌ | ✅ | ✅ |
+| **Receive In-App Notifications** | ✅ | ✅ | ✅ |
 
-------------------------------------------------------------------------
+---
 
-## Role-Based Access Control
+## 🇮🇳 Default Team Accounts
 
-| Feature | EMPLOYEE | HR | ADMIN |
-|---|:---:|:---:|:---:|
-| View Dashboard | ✅ | ✅ | ✅ |
-| My Attendance | ✅ | ✅ | ✅ |
-| HR Attendance Stats | ❌ | ✅ | ✅ |
-| Apply Leave | ✅ | ✅ | ✅ |
-| Approve/Reject Leave | ❌ | ✅ | ✅ |
-| View All Leaves | ❌ | ✅ | ✅ |
-| My Payslip | ✅ | ✅ | ✅ |
-| Configure Employee CTC | ❌ | ✅ | ✅ |
-| Generate Payslips | ❌ | ✅ | ✅ |
-| View All Payslips | ❌ | ✅ | ✅ |
-| My Profile | ✅ | ✅ | ✅ |
-| Users Directory | ❌ | ✅ | ✅ |
-| Account Approvals | ❌ | ✅ | ✅ |
-| Post Announcements | ❌ | ✅ | ✅ |
-| Notifications | ✅ | ✅ | ✅ |
+The system comes pre-seeded with authentic Indian team members. You can log in directly using the **Quick Sign In** buttons on the login screen or with the credentials below:
 
-------------------------------------------------------------------------
+| Role | Name | Designation | Email | Password | Status |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| **👑 ADMIN** | **Pratik Kamble** | Founder & CTO | `pratik.kamble@peoplecore.in` | `pratik@123` | `ACCEPTED` |
+| **ADMIN** | Vikramaditya Rao | VP of Operations | `vikram.rao@peoplecore.in` | `Password@123` | `ACCEPTED` |
+| **💼 HR** | **Meghna Kulkarni** | HR Operations Lead | `meghna.kulkarni@peoplecore.in` | `meghna@123` | `ACCEPTED` |
+| **HR** | Sneha Joshi | Talent Acquisition Specialist | `sneha.joshi@peoplecore.in` | `Password@123` | `ACCEPTED` |
+| **👤 EMPLOYEE** | **Arjun Patil** | Senior Software Engineer | `arjun.patil@peoplecore.in` | `arjun@123` | `ACCEPTED` |
+| **EMPLOYEE** | Aarti Deshmukh | Frontend Engineer | `aarti.deshmukh@peoplecore.in` | `Password@123` | `ACCEPTED` |
+| **EMPLOYEE** | Rohan Mehta | Senior UI/UX Designer | `rohan.mehta@peoplecore.in` | `Password@123` | `ACCEPTED` |
+| **EMPLOYEE** | Kavitha Iyer | DevOps Engineer | `kavitha.iyer@peoplecore.in` | `Password@123` | `ACCEPTED` |
+| **EMPLOYEE** | Siddharth Nair | Backend Engineer | `siddharth.nair@peoplecore.in` | `Password@123` | `ACCEPTED` |
+| **EMPLOYEE** | Tanvi Sharma | Growth Marketing Manager | `tanvi.sharma@peoplecore.in` | `Password@123` | `ACCEPTED` |
+| **EMPLOYEE** | Omkar Bhosale | Financial Analyst | `omkar.bhosale@peoplecore.in` | `Password@123` | `ACCEPTED` |
+| **PENDING** | Neha Mukherjee | QA Engineer | `neha.mukherjee@peoplecore.in` | `Password@123` | `PENDING` |
+| **PENDING** | Rajesh Gupta | Junior Backend Developer | `rajesh.gupta@peoplecore.in` | `Password@123` | `PENDING` |
 
-## Project Structure
+---
 
-``` text
+## 📂 Project Structure
+
+```text
 peoplecore/
 ├── backend/
-│   ├── api-gateway/           # Reverse proxy entry point (Port 5000)
-│   ├── auth-service/          # Registration, login and JWT (Port 5001)
-│   ├── admin-service/         # Users, approvals and announcements (Port 5002)
-│   ├── otp-service/           # Email OTP verification
-│   ├── user-service/          # Employee profile CRUD (Port 5004)
-│   ├── notification-service/  # In-app notifications (Port 5005)
-│   ├── leave-service/         # Leave requests and approvals (Port 5006)
-│   ├── attendance-service/    # Check-in/out and statistics (Port 5007)
-│   └── payroll-service/       # Salary and payslips (Port 5008)
+│   ├── api-gateway/              # Reverse Proxy Gateway (Port 5000)
+│   ├── auth-service/             # Auth, Login, Registration, JWT (Port 5001)
+│   ├── admin-service/            # Directory, Approvals, Announcements (Port 5002)
+│   ├── otp-service/              # Email OTP Generation & Verification (Port 5003)
+│   ├── user-service/             # Single Source of Truth for Profiles (Port 5004)
+│   ├── notification-service/     # In-app Notifications (Port 5005)
+│   ├── leave-service/            # Leave Applications & Approval Pipeline (Port 5006)
+│   ├── attendance-service/       # Clock-in/out, History, Stats (Port 5007)
+│   └── payroll-service/          # CTC Structures, Monthly Payslips (Port 5008)
 │
-└── frontend/
-    └── peoplecore/
-        ├── public/
-        └── src/
-            ├── components/
-            │   ├── Login.jsx
-            │   ├── Signup.jsx
-            │   ├── VerifyOtp.jsx
-            │   ├── Home.jsx
-            │   ├── Sidebar.jsx
-            │   ├── Navbar.jsx
-            │   ├── Attendance.jsx
-            │   ├── MyLeaves.jsx
-            │   ├── Payroll.jsx
-            │   ├── Profile.jsx
-            │   ├── Users.jsx
-            │   ├── PendingRequest.jsx
-            │   ├── Notifications.jsx
-            │   ├── NotificationBell.jsx
-            │   ├── Announcements.jsx
-            │   └── Modal.jsx
-            ├── routes/
-            │   ├── ProtectedRoute.jsx
-            │   └── AdminRoute.jsx
-            ├── store/
-            │   ├── peopleCoreStore.js
-            │   ├── userSlice.js
-            │   ├── themeSlice.js
-            │   └── notificationSlice.js
-            ├── App.jsx
-            ├── main.jsx
-            └── index.css
+├── frontend/
+│   └── peoplecore/
+│       ├── public/
+│       └── src/
+│           ├── api/              # Centralized Axios/Fetch API Clients
+│           ├── components/       # Domain-specific UI Components
+│           │   ├── attendance/   # Clock-in cards, logs, stats
+│           │   ├── auth/         # Login, Register, QuickFill, Layouts
+│           │   ├── leaves/       # Leave forms, modals, tables
+│           │   ├── payroll/      # CTC breakdown, payslip viewers
+│           │   └── ui/           # Buttons, Inputs, Badges, SearchBar
+│           ├── pages/            # Page-level route views
+│           ├── store/            # Redux Toolkit Slices (User, Theme, Notifications)
+│           ├── routes/           # Protected & Admin-restricted Routes
+│           ├── App.jsx           # Master App Layout & Router
+│           ├── main.jsx          # Entry Point
+│           └── index.css         # Tailwind CSS Design System
+│
+├── start-all.js                  # One-click Launcher for all 9 Microservices
+└── README.md
 ```
 
-------------------------------------------------------------------------
+---
 
-## Getting Started
+## 🚦 Getting Started
 
 ### Prerequisites
+- **Node.js**: v18.0.0 or later
+- **npm**: v9.0.0 or later
+- **MongoDB**: Local MongoDB instance running on `mongodb://127.0.0.1:27017`
 
-Install the following:
+---
 
--   **Node.js** v18 or later
--   **npm** v9 or later
--   **MongoDB** local installation or MongoDB Atlas
+### 1. Clone & Install Dependencies
 
-### 1. Clone the Repository
-
-``` bash
+```bash
 git clone https://github.com/your-username/peoplecore.git
 cd peoplecore
+
+# Install all backend microservice dependencies
+cd backend/api-gateway && npm install && cd ../..
+cd backend/auth-service && npm install && cd ../..
+cd backend/admin-service && npm install && cd ../..
+cd backend/otp-service && npm install && cd ../..
+cd backend/user-service && npm install && cd ../..
+cd backend/notification-service && npm install && cd ../..
+cd backend/leave-service && npm install && cd ../..
+cd backend/attendance-service && npm install && cd ../..
+cd backend/payroll-service && npm install && cd ../..
+
+# Install frontend dependencies
+cd frontend/peoplecore && npm install && cd ../..
 ```
 
-### 2. Configure Environment Variables
+---
 
-Create a `.env` file inside each backend service that requires
-environment configuration.
+### 2. Seed All Databases (One-Time Setup)
 
-Example:
+Execute the seed scripts to populate Indian team members, notifications, and announcements:
 
-``` env
-PORT=5001
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
+```bash
+# Seed Users into pc_auth_db & pc_user_db
+node backend/auth-service/seed.js
+
+# Seed Notifications into pc_notification_db
+node backend/notification-service/seed.js
+
+# Seed Announcements into pc_admin_db
+node backend/admin-service/seedAnnouncements.js
 ```
 
-Services that communicate with the notification service may additionally
-require:
+---
 
-``` env
-NOTIFICATION_SERVICE_URL=http://localhost:5005
+### 3. Launch All Microservices
+
+Start all 9 backend microservices simultaneously with a single command from the project root:
+
+```bash
+node start-all.js
 ```
 
-> **Security:** Never commit real `.env` files, JWT secrets, database
-> credentials, or email credentials to source control. Use
-> `.env.example` files for shareable configuration templates.
+You will see output confirming all services running:
+```text
+🚀 Starting all PeopleCore backend microservices...
 
-### 3. Start the Backend Services
+✅ [api-gateway] Launching on port :5000
+✅ [auth-service] Launching on port :5001
+✅ [admin-service] Launching on port :5002
+✅ [otp-service] Launching on port :5003
+✅ [user-service] Launching on port :5004
+✅ [notification-service] Launching on port :5005
+✅ [leave-service] Launching on port :5006
+✅ [attendance-service] Launching on port :5007
+✅ [payroll-service] Launching on port :5008
 
-Open a terminal for each service and run:
-
-``` bash
-cd backend/api-gateway
-npm install
-node index.js
+🌐 All backend microservices launched successfully!
 ```
 
-Repeat the same process for the backend services:
-
-``` text
-auth-service
-admin-service
-otp-service
-user-service
-notification-service
-leave-service
-attendance-service
-payroll-service
-```
-
-Use the configured port for each service.
+---
 
 ### 4. Start the Frontend
 
-``` bash
+In a separate terminal, launch the Vite development server:
+
+```bash
 cd frontend/peoplecore
-npm install
 npm run dev
 ```
 
-The Vite development server runs on:
+Open your browser at **[http://localhost:5173](http://localhost:5173)** and log in with **Pratik Kamble** or use the **Quick Sign In** buttons.
 
-``` text
-http://localhost:5173
+---
+
+## ⚙️ Environment Configuration
+
+Each microservice contains its own dedicated `.env` file:
+
+### API Gateway (`backend/api-gateway/.env`)
+```env
+PORT=5000
 ```
 
-### 5. Optional Demo Data
-
-If the repository contains the seed script:
-
-``` bash
-node seed.js
+### Auth Service (`backend/auth-service/.env`)
+```env
+PORT=5001
+MONGO_URI=mongodb://127.0.0.1:27017/pc_auth_db
+JWT_SECRET=peoplecore_dev_jwt_secret
+USER_SERVICE_URL=http://localhost:5004
 ```
 
-Use this only when demo data is required.
-
-------------------------------------------------------------------------
-
-## Environment Variables
-
-  ---------------------------------------------------------------------
-  Variable                           Purpose
-  ---------------------------------- ----------------------------------
-  `PORT`                             Service port
-
-  `MONGO_URI`                        MongoDB connection string
-
-  `JWT_SECRET`                       JWT signing/verification secret
-
-  `NOTIFICATION_SERVICE_URL`         Notification service URL for
-                                     services that call it
-  ---------------------------------------------------------------------
-
-### Example
-
-``` env
-PORT=5006
-MONGO_URI=mongodb://127.0.0.1:27017/peoplecore
-JWT_SECRET=your_secure_secret
+### Admin Service (`backend/admin-service/.env`)
+```env
+PORT=5002
+MONGO_URI=mongodb://127.0.0.1:27017/pc_admin_db
+JWT_SECRET=peoplecore_dev_jwt_secret
+USER_SERVICE_URL=http://localhost:5004
+AUTH_SERVICE_URL=http://localhost:5001
 NOTIFICATION_SERVICE_URL=http://localhost:5005
 ```
 
-For production, use environment-specific secrets and credentials rather
-than committing them to the repository.
-
-------------------------------------------------------------------------
-
-## API Reference
-
-### Auth Service --- `:5001`
-
-  Method   Endpoint         Access   Description
-  -------- ---------------- -------- ----------------------
-  `GET`    `/health`        Public   Health check
-  `POST`   `/register`      Public   Register a new user
-  `POST`   `/login`         Public   Authenticate a user
-  `GET`    `/profile/:id`   Public   Fetch a user profile
-
-### Admin Service --- `:5002`
-
-  --------------------------------------------------------------------------
-  Method          Endpoint                   Access          Description
-  --------------- -------------------------- --------------- ---------------
-  `GET`           `/health`                  Public          Health check
-
-  `GET`           `/users`                   Admin, HR       List employees
-
-  `GET`           `/account-approval`        Admin, HR       List pending
-                                                             registrations
-
-  `PUT`           `/approve-user/:id`        Admin, HR       Approve a user
-
-  `PUT`           `/reject-user/:id`         Admin, HR       Reject a
-                                                             registration
-
-  `GET`           `/announcements`           Authenticated   List
-                                                             announcements
-
-  `POST`          `/announcements`           Admin, HR       Create
-                                                             announcement
-
-  `PUT`           `/announcements/:id`       Admin, HR       Update
-                                                             announcement
-
-  `DELETE`        `/announcements/:id`       Admin, HR       Delete
-                                                             announcement
-
-  `PUT`           `/announcements/:id/pin`   Admin, HR       Toggle
-                                                             announcement
-                                                             pin
-  --------------------------------------------------------------------------
-
-### User Service --- `:5004`
-
-  Method   Endpoint         Access          Description
-  -------- ---------------- --------------- --------------------------
-  `GET`    `/health`        Public          Health check
-  `GET`    `/user/me`       Authenticated   Get current user profile
-  `PUT`    `/user/update`   Authenticated   Update profile
-
-### Notification Service --- `:5005`
-
-  ------------------------------------------------------------------------------
-  Method         Endpoint                        Access          Description
-  -------------- ------------------------------- --------------- ---------------
-  `GET`          `/health`                       Public          Health check
-
-  `GET`          `/notifications`                Authenticated   Get
-                                                                 notifications
-
-  `GET`          `/notifications/unread-count`   Authenticated   Get unread
-                                                                 count
-
-  `POST`         `/notifications`                Authenticated   Create
-                                                                 notification
-
-  `PUT`          `/notifications/read-all`       Authenticated   Mark
-                                                                 notifications
-                                                                 as read
-
-  `DELETE`       `/notifications/clear-all`      Authenticated   Clear
-                                                                 notifications
-  ------------------------------------------------------------------------------
-
-### Leave Service --- `:5006`
-
-  Method     Endpoint                Access          Description
-  ---------- ----------------------- --------------- ----------------------------
-  `GET`      `/health`               Public          Health check
-  `POST`     `/leaves`               Authenticated   Submit leave
-  `GET`      `/leaves/my`            Authenticated   Get personal leave history
-  `GET`      `/leaves/all`           Admin, HR       Get all leaves
-  `PUT`      `/leaves/:id/approve`   Admin, HR       Approve leave
-  `PUT`      `/leaves/:id/reject`    Admin, HR       Reject leave
-  `DELETE`   `/leaves/:id`           Owner, HR       Cancel/delete leave
-
-### Attendance Service --- `:5007`
-
-  Method   Endpoint                 Access          Description
-  -------- ------------------------ --------------- ---------------------------
-  `GET`    `/health`                Public          Health check
-  `POST`   `/attendance/checkin`    Authenticated   Check in
-  `PUT`    `/attendance/checkout`   Authenticated   Check out
-  `GET`    `/attendance/today`      Authenticated   Get today's record
-  `GET`    `/attendance/my`         Authenticated   Get attendance history
-  `GET`    `/attendance/all`        Admin, HR       Get all attendance
-  `GET`    `/attendance/stats`      Admin, HR       Get attendance statistics
-
-### Payroll Service --- `:5008`
-
-  ----------------------------------------------------------------------------
-  Method         Endpoint                       Access          Description
-  -------------- ------------------------------ --------------- --------------
-  `GET`          `/health`                      Public          Health check
-
-  `GET`          `/payroll/my-structure`        Authenticated   Get salary
-                                                                structure
-
-  `GET`          `/payroll/my-payslips`         Authenticated   Get payslip
-                                                                history
-
-  `GET`          `/payroll/payslip/:id`         Owner, HR       Get payslip
-                                                                details
-
-  `GET`          `/payroll/all-structures`      Admin, HR       Get all salary
-                                                                structures
-
-  `POST`         `/payroll/salary-structure`    Admin, HR       Configure
-                                                                employee CTC
-
-  `POST`         `/payroll/generate-payslips`   Admin, HR       Generate
-                                                                monthly
-                                                                payslips
-
-  `GET`          `/payroll/all-payslips`        Admin, HR       Get all
-                                                                payslips
-  ----------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-## Design System
-
-  Area                     Specification
-  ------------------------ ---------------------------------------------
-  Primary color            Indigo `#6366f1`
-  Typography               System font stack / Inter
-  Dark palette             `slate-950`, `slate-900`, `slate-800`
-  Light palette            `slate-50`, `white`, `slate-200`
-  UI style                 Glassmorphism with subtle transparency
-  Animations               Fade, scale, loading and status transitions
-  Responsive breakpoints   `sm` 640px, `md` 768px, `lg` 1024px
-
-------------------------------------------------------------------------
-
-## Testing
-
-PowerShell test scripts are available for key services.
-
-``` powershell
-# Leave Service
-.\test_leave_service.ps1
-
-# Attendance Service
-.\test_attendance.ps1
-
-# Payroll Service
-.\test_payroll.ps1
-
-# Full test suite
-.\test_full_suite.ps1
+### User Service (`backend/user-service/.env`)
+```env
+PORT=5004
+MONGO_URI=mongodb://127.0.0.1:27017/pc_user_db
+JWT_SECRET=peoplecore_dev_jwt_secret
 ```
 
-------------------------------------------------------------------------
-
-## Contributing
-
-1.  Fork the repository.
-2.  Create a feature branch:
-
-``` bash
-git checkout -b feature/your-feature
+### Leave Service (`backend/leave-service/.env`)
+```env
+PORT=5006
+MONGO_URI=mongodb://127.0.0.1:27017/pc_leave_db
+JWT_SECRET=peoplecore_dev_jwt_secret
+USER_SERVICE_URL=http://localhost:5004
+NOTIFICATION_SERVICE_URL=http://localhost:5005
 ```
 
-3.  Make your changes.
-4.  Commit with a clear message:
-
-``` bash
-git commit -m "Add your change"
+### Attendance Service (`backend/attendance-service/.env`)
+```env
+PORT=5007
+MONGO_URI=mongodb://127.0.0.1:27017/pc_attendance_db
+JWT_SECRET=peoplecore_dev_jwt_secret
+USER_SERVICE_URL=http://localhost:5004
+NOTIFICATION_SERVICE_URL=http://localhost:5005
 ```
 
-5.  Push the branch:
-
-``` bash
-git push origin feature/your-feature
+### Payroll Service (`backend/payroll-service/.env`)
+```env
+PORT=5008
+MONGO_URI=mongodb://127.0.0.1:27017/pc_payroll_db
+JWT_SECRET=peoplecore_dev_jwt_secret
+USER_SERVICE_URL=http://localhost:5004
+NOTIFICATION_SERVICE_URL=http://localhost:5005
 ```
 
-6.  Open a Pull Request.
+---
 
+## 📡 API Reference
 
+All requests from the frontend route through the **API Gateway** on port `5000` via the `/pc/*` prefix.
 
+### 🔑 Auth Routes (`/pc/auth/*` → `:5001`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/health` | Public | Service health check |
+| `POST` | `/register` | Public | Register new user account |
+| `POST` | `/login` | Public | Authenticate user & receive JWT |
+| `GET` | `/profile/:id` | Public | Get basic auth profile |
+
+### 👤 User Routes (`/pc/user/*` → `:5004`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/health` | Public | Service health check |
+| `GET` | `/user/me` | Authenticated | Get current authenticated user profile |
+| `PUT` | `/user/update` | Authenticated | Update user profile fields (phone, bio, avatar, etc.) |
+
+### 🛠 Admin Routes (`/pc/admin/*` → `:5002`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/users` | Admin, HR | List all employee directory profiles |
+| `GET` | `/account-approval` | Admin, HR | List pending user registrations |
+| `PUT` | `/approve-user/:id` | Admin, HR | Approve user registration and assign role |
+| `PUT` | `/reject-user/:id` | Admin, HR | Reject registration request |
+| `GET` | `/announcements` | Authenticated | Fetch company announcements |
+| `POST` | `/announcements` | Admin, HR | Create announcement |
+| `PUT` | `/announcements/:id` | Admin, HR | Update announcement |
+| `DELETE` | `/announcements/:id` | Admin, HR | Delete announcement |
+| `PUT` | `/announcements/:id/pin`| Admin, HR | Toggle announcement pin status |
+
+### 🌴 Leave Routes (`/pc/leave/*` → `:5006`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/leaves` | Authenticated | Submit new leave application |
+| `GET` | `/leaves/my` | Authenticated | Get personal leave history |
+| `GET` | `/leaves/all` | Admin, HR | Get all company leaves |
+| `PUT` | `/leaves/:id/approve` | Admin, HR | Approve leave request |
+| `PUT` | `/leaves/:id/reject` | Admin, HR | Reject leave request |
+| `DELETE` | `/leaves/:id` | Owner, HR | Cancel leave application |
+
+### ⏱ Attendance Routes (`/pc/attendance/*` → `:5007`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/attendance/checkin` | Authenticated | Clock in for the day |
+| `PUT` | `/attendance/checkout` | Authenticated | Clock out for the day |
+| `GET` | `/attendance/today` | Authenticated | Get today's attendance record |
+| `GET` | `/attendance/my` | Authenticated | Get personal monthly attendance log |
+| `GET` | `/attendance/all` | Admin, HR | Get company-wide attendance |
+| `GET` | `/attendance/stats` | Admin, HR | Get today's attendance metrics |
+
+### 💰 Payroll Routes (`/pc/payroll/*` → `:5008`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/payroll/my-structure` | Authenticated | Get logged in user's salary breakdown |
+| `GET` | `/payroll/my-payslips` | Authenticated | Get personal monthly payslips |
+| `GET` | `/payroll/payslip/:id` | Owner, HR | Get specific payslip details |
+| `GET` | `/payroll/all-structures`| Admin, HR | View all configured salary structures |
+| `POST` | `/payroll/salary-structure`| Admin, HR | Configure employee CTC & bank details |
+| `POST` | `/payroll/generate-payslips`| Admin, HR | Batch generate monthly payslips |
+| `GET` | `/payroll/all-payslips` | Admin, HR | View all generated company payslips |
+
+### 🔔 Notification Routes (`/pc/notification/*` → `:5005`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/notifications` | Authenticated | Get user notifications (newest first) |
+| `GET` | `/notifications/unread-count`| Authenticated | Get unread notification counter |
+| `PUT` | `/notifications/:id/read`| Authenticated | Mark single notification as read |
+| `PUT` | `/notifications/read-all`| Authenticated | Mark all notifications as read |
+| `DELETE`| `/notifications/clear-all`| Authenticated | Clear all notifications |
+
+---
+
+## 🔗 Internal Interservice APIs
+
+These internal endpoints are called service-to-service without requiring gateway JWT passing:
+
+- **`GET /internal/users/:id`** (`user-service:5004`) — Fetches employee profile details by ID.
+- **`GET /internal/users?role=ADMIN,HR`** (`user-service:5004`) — Fetches users matching role filters.
+- **`GET /internal/users?status=ACCEPTED`** (`user-service:5004`) — Fetches active verified users.
+- **`POST /internal/users`** (`user-service:5004`) — Syncs employee profile upon registration.
+- **`PUT /internal/users/:id/approve`** (`auth-service:5001` & `user-service:5004`) — Admin approval synchronization.
+- **`PUT /internal/users/:id/reject`** (`auth-service:5001` & `user-service:5004`) — Admin rejection synchronization.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the Project repository.
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your Changes (`git commit -m 'feat: Add AmazingFeature'`).
+4. Push to the Branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+<div align="center">
+
+Made with ❤️ by the **PeopleCore** Team
+
+</div>

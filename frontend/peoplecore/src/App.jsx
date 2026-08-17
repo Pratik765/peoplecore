@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 import { userAction } from "./store/userSlice";
+import { fetchMyProfile } from "./api/userApi";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
@@ -35,11 +36,9 @@ function App() {
         }
 
         // Fetch full dynamic profile details from user-service
-        fetch("http://localhost:5004/user/me", {
-          headers: { Authorization: token },
-        })
-          .then((res) => (res.ok ? res.json() : null))
+        fetchMyProfile()
           .then((data) => {
+
             if (data) {
               dispatch(
                 userAction.login({

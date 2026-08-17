@@ -6,7 +6,8 @@ import useTheme from "./useTheme";
 import { fetchMyProfile, fetchAllUsers, fetchPendingApprovals } from "../api/userApi";
 import { fetchLegacyLeaveStats } from "../api/leaveApi";
 import { fetchAnnouncements } from "../api/announcementApi";
-import { MICROSERVICE_PORTS } from "../api/apiConfig";
+import { API_BASE_URLS, MICROSERVICE_PORTS } from "../api/apiConfig";
+
 import { Users, Clock, Activity, Shield, FileText, Calendar, Briefcase, CheckCircle2, Sparkles } from "lucide-react";
 
 export const useDashboardMetrics = () => {
@@ -60,11 +61,13 @@ export const useDashboardMetrics = () => {
       }
 
       // 3. Microservice Health check
+      const baseHost = API_BASE_URLS.GATEWAY.replace(/\/pc\/.*$/, "").replace(/:\d+$/, "");
       const healthResults = await Promise.allSettled(
-        MICROSERVICE_PORTS.map((port) => fetch(`http://localhost:${port}/health`).then((res) => res.ok))
+        MICROSERVICE_PORTS.map((port) => fetch(`${baseHost}:${port}/health`).then((res) => res.ok))
       );
       const onlineServices = healthResults.filter((r) => r.status === "fulfilled" && r.value).length;
       setActiveServicesCount(`${onlineServices} / ${MICROSERVICE_PORTS.length}`);
+
 
       // 4. Admin/HR Stats
       if (token && (userRole === "ADMIN" || userRole === "HR")) {

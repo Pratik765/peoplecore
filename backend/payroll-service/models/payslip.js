@@ -22,19 +22,19 @@ const payslipSchema = new mongoose.Schema(
     },
     department: {
       type: String,
-      default: "Engineering",
+      required: true,
     },
     designation: {
       type: String,
-      default: "Software Engineer",
+      required: true,
     },
     payMonth: {
-      type: String, // e.g. "August 2026"
+      type: String,
       required: true,
     },
     payYear: {
       type: Number,
-      default: 2026,
+      required: true,
     },
     basic: {
       type: Number,
@@ -70,7 +70,7 @@ const payslipSchema = new mongoose.Schema(
       default: "PAID",
     },
     paidOn: {
-      type: String, // "YYYY-MM-DD"
+      type: String,
       default: () => new Date().toISOString().split("T")[0],
     },
     paymentMethod: {
@@ -79,11 +79,11 @@ const payslipSchema = new mongoose.Schema(
     },
     bankName: {
       type: String,
-      default: "HDFC Bank",
+      default: "",
     },
     accountNumber: {
       type: String,
-      default: "50100492817264",
+      default: "",
     },
   },
   { timestamps: true }

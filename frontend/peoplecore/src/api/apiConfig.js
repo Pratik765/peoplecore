@@ -1,14 +1,18 @@
-// Centralized API configuration for PeopleCore microservices
+// Centralized API configuration for PeopleCore microservices (Routed through API Gateway)
+
+const GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL || "http://localhost:5000";
 
 export const API_BASE_URLS = {
-  AUTH: "http://localhost:5001",
-  ADMIN: "http://localhost:5002",
-  USER: "http://localhost:5004",
-  NOTIFICATION: "http://localhost:5005",
-  LEAVE: "http://localhost:5006",
-  ATTENDANCE: "http://localhost:5007",
-  PAYROLL: "http://localhost:5008",
-  LEAVE_LEGACY: "http://localhost:8080/api1",
+  GATEWAY: GATEWAY_URL,
+  AUTH: `${GATEWAY_URL}/pc/auth`,
+  ADMIN: `${GATEWAY_URL}/pc/admin`,
+  OTP: `${GATEWAY_URL}/pc/otp`,
+  USER: `${GATEWAY_URL}/pc/user`,
+  NOTIFICATION: `${GATEWAY_URL}/pc/notification`,
+  LEAVE: `${GATEWAY_URL}/pc/leave`,
+  ATTENDANCE: `${GATEWAY_URL}/pc/attendance`,
+  PAYROLL: `${GATEWAY_URL}/pc/payroll`,
 };
 
-export const MICROSERVICE_PORTS = ["5001", "5002", "5004", "5005", "5006", "5007", "5008"];
+export const MICROSERVICE_PORTS = ["5000", "5001", "5002", "5003", "5004", "5005", "5006", "5007", "5008"];
+

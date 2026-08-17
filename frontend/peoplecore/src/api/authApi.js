@@ -9,15 +9,16 @@ export const loginUser = (credentials) => {
 };
 
 export const registerUser = (userData) => {
-  return apiFetch(`${API_BASE_URLS.AUTH}/signup`, {
+  return apiFetch(`${API_BASE_URLS.AUTH}/register`, {
     method: "POST",
     body: JSON.stringify(userData),
   });
 };
 
 export const verifyOtp = (otpData) => {
-  return apiFetch(`${API_BASE_URLS.AUTH}/verify-otp`, {
+  return apiFetch(`${API_BASE_URLS.OTP}/verify`, {
     method: "POST",
     body: JSON.stringify(otpData),
   });
 };
+

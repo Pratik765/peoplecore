@@ -75,6 +75,81 @@ app.put("/user/update", verifyToken, async (req, res) => {
   }
 });
 
+// ─── INTERNAL INTER-SERVICE ENDPOINTS (NO JWT REQUIRED) ───
+
+// POST /internal/users — Used by auth-service on registration
+app.post("/internal/users", async (req, res) => {
+  try {
+    const profile = await User.create(req.body);
+    res.status(201).json(profile);
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Profile already exists" });
+    }
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// PUT /internal/users/:id/approve — Used by admin-service
+app.put("/internal/users/:id/approve", async (req, res) => {
+  try {
+    const { role } = req.body;
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      { role, status: "ACCEPTED" },
+      { new: true, runValidators: true }
+    ).select("-password");
+    if (!updated) return res.status(404).json({ message: "User not found" });
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// PUT /internal/users/:id/reject — Used by admin-service
+app.put("/internal/users/:id/reject", async (req, res) => {
+  try {
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      { status: "REJECTED" },
+      { new: true, runValidators: true }
+    ).select("-password");
+    if (!updated) return res.status(404).json({ message: "User not found" });
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET /internal/users/:id — Used by leave, attendance, payroll, admin
+app.get("/internal/users/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .select("name email role department designation status phone location bio avatar")
+      .lean();
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET /internal/users?role=ADMIN,HR  OR  ?status=ACCEPTED
+// Used by leave-service (find HR users), attendance-service (count active users), payroll, admin
+app.get("/internal/users", async (req, res) => {
+  try {
+    const query = {};
+    if (req.query.role) query.role = { $in: req.query.role.split(",") };
+    if (req.query.status) query.status = req.query.status;
+    const users = await User.find(query)
+      .select("_id name email role department designation status phone location bio avatar")
+      .lean();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`User Service running at http://localhost:${PORT}`);
 });

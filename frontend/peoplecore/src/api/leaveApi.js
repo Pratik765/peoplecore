@@ -10,9 +10,14 @@ export const fetchAllLeaves = () => {
 };
 
 export const applyForLeave = (leaveData) => {
-  return apiFetch(`${API_BASE_URLS.LEAVE}/leaves/apply`, {
+  return apiFetch(`${API_BASE_URLS.LEAVE}/leaves`, {
     method: "POST",
-    body: JSON.stringify(leaveData),
+    body: JSON.stringify({
+      leaveType: leaveData.leaveType,
+      start_date: leaveData.startDate || leaveData.start_date,
+      end_date: leaveData.endDate || leaveData.end_date,
+      remark: leaveData.remark,
+    }),
   });
 };
 
@@ -23,17 +28,18 @@ export const deleteLeaveRequest = (leaveId) => {
 };
 
 export const approveLeaveRequest = (leaveId) => {
-  return apiFetch(`${API_BASE_URLS.LEAVE}/leaves/approve/${leaveId}`, {
-    method: "POST",
+  return apiFetch(`${API_BASE_URLS.LEAVE}/leaves/${leaveId}/approve`, {
+    method: "PUT",
   });
 };
 
 export const rejectLeaveRequest = (leaveId) => {
-  return apiFetch(`${API_BASE_URLS.LEAVE}/leaves/reject/${leaveId}`, {
-    method: "POST",
+  return apiFetch(`${API_BASE_URLS.LEAVE}/leaves/${leaveId}/reject`, {
+    method: "PUT",
   });
 };
 
 export const fetchLegacyLeaveStats = (userId) => {
-  return apiFetch(`${API_BASE_URLS.LEAVE_LEGACY}/leaverequest/getById?mongoid=${userId}`);
+  return apiFetch(`${API_BASE_URLS.LEAVE}/api1/leaverequest/getById?mongoid=${userId}`);
 };
+

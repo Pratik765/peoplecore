@@ -6,11 +6,73 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const verifyToken = require("./middleware/verifyToken");
 const authorizeRoles = require("./middleware/authorizeRoles");
-const user = require("./models/user");
 const Announcement = require("./models/announcement");
 const requestLogger = require("./middleware/accessLogger");
 const PORT = process.env.PORT || 5002;
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || "http://localhost:5005";
+const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://localhost:5004";
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || "http://localhost:5001";
+
+// Interservice Helpers
+const getUserById = async (userId) => {
+  try {
+    const res = await fetch(`${USER_SERVICE_URL}/internal/users/${userId}`);
+    if (res.ok) return await res.json();
+  } catch (err) {
+    console.error(`[AdminService] Error fetching user ${userId}:`, err.message);
+  }
+  return null;
+};
+
+const getUsers = async (query = {}) => {
+  try {
+    const params = new URLSearchParams();
+    if (query.role) params.set("role", query.role);
+    if (query.status) params.set("status", query.status);
+    const queryString = params.toString() ? `?${params.toString()}` : "";
+    const res = await fetch(`${USER_SERVICE_URL}/internal/users${queryString}`);
+    if (res.ok) return await res.json();
+  } catch (err) {
+    console.error(`[AdminService] Error fetching users:`, err.message);
+  }
+  return [];
+};
+
+const approveUserInAuth = async (userId, role) => {
+  const res = await fetch(`${AUTH_SERVICE_URL}/internal/users/${userId}/approve`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role }),
+  });
+  if (!res.ok) throw new Error(`Auth service error: ${res.statusText}`);
+  return await res.json();
+};
+
+const rejectUserInAuth = async (userId) => {
+  const res = await fetch(`${AUTH_SERVICE_URL}/internal/users/${userId}/reject`, {
+    method: "PUT",
+  });
+  if (!res.ok) throw new Error(`Auth service error: ${res.statusText}`);
+  return await res.json();
+};
+
+const approveUserInUserService = async (userId, role) => {
+  const res = await fetch(`${USER_SERVICE_URL}/internal/users/${userId}/approve`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role }),
+  });
+  if (!res.ok) throw new Error(`User service error: ${res.statusText}`);
+  return await res.json();
+};
+
+const rejectUserInUserService = async (userId) => {
+  const res = await fetch(`${USER_SERVICE_URL}/internal/users/${userId}/reject`, {
+    method: "PUT",
+  });
+  if (!res.ok) throw new Error(`User service error: ${res.statusText}`);
+  return await res.json();
+};
 
 // Helper: Send a notification to the notification-service (fire-and-forget)
 const sendNotification = async (token, { userId, type, title, message, metadata }) => {
@@ -52,20 +114,17 @@ app.get("/health", (req, res) => {
 router.use(verifyToken);
 router.get("/users", authorizeRoles("ADMIN", "HR"), async (req, res) => {
   try {
-    const users = await user.find().select("-password");
+    const users = await getUsers();
     res.status(200).json({ users, length: users.length });
   } catch (error) {
     console.log(error);
-
     res.status(500).json({ message: "Internal server error" });
   }
 });
 
 router.get("/account-approval", authorizeRoles("ADMIN", "HR"), async (req, res) => {
   try {
-    const pendingUsers = await user
-      .find({ status: "PENDING" })
-      .select("-password");
+    const pendingUsers = await getUsers({ status: "PENDING" });
     res.status(200).json({ pendingUsers, length: pendingUsers.length });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
@@ -88,13 +147,8 @@ router.put("/approve-user/:id", authorizeRoles("ADMIN", "HR"), async (req, res) 
       });
     }
 
-    const updatedUser = await user
-      .findByIdAndUpdate(
-        id,
-        { role, status: "ACCEPTED" },
-        { new: true, runValidators: true }
-      )
-      .select("-password");
+    const updatedUser = await approveUserInAuth(id, role);
+    await approveUserInUserService(id, role);
     // Fire notification to the approved user
     sendNotification(req.headers.authorization, {
       userId: id,
@@ -121,13 +175,8 @@ router.put("/reject-user/:id", authorizeRoles("ADMIN", "HR"), async (req, res) =
         message: "Id is not provided",
       });
     }
-    const updatedUser = await user
-      .findByIdAndUpdate(
-        id,
-        { status: "REJECTED" },
-        { new: true, runValidators: true }
-      )
-      .select("-password");
+    const updatedUser = await rejectUserInAuth(id);
+    await rejectUserInUserService(id);
     // Fire notification to the rejected user
     sendNotification(req.headers.authorization, {
       userId: id,
@@ -168,7 +217,7 @@ router.post("/announcements", authorizeRoles("ADMIN", "HR"), async (req, res) =>
       return res.status(400).json({ message: "Title and content are required" });
     }
 
-    const poster = await user.findById(req.user.userId).select("name role");
+    const poster = await getUserById(req.user.userId);
 
     const announcement = await Announcement.create({
       title,
@@ -182,7 +231,7 @@ router.post("/announcements", authorizeRoles("ADMIN", "HR"), async (req, res) =>
 
     // Notify all accepted users about new announcement
     try {
-      const allUsers = await user.find({ status: "ACCEPTED" }).select("_id");
+      const allUsers = await getUsers({ status: "ACCEPTED" });
       const token = req.headers.authorization;
       for (const u of allUsers) {
         sendNotification(token, {

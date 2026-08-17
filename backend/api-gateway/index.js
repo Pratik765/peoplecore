@@ -13,55 +13,22 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(
-  "/pc/auth",
+const createProxy = (target, pathPrefix) =>
   createProxyMiddleware({
-    target: process.env.AUTH_SERVICE_URL || "http://localhost:5001",
+    target,
     changeOrigin: true,
-  })
-);
-app.use(
-  "/pc/admin",
-  createProxyMiddleware({
-    target: process.env.ADMIN_SERVICE_URL || "http://localhost:5002",
-    changeOrigin: true,
-  })
-);
-app.use(
-  "/pc/user",
-  createProxyMiddleware({
-    target: process.env.USER_SERVICE_URL || "http://localhost:5004",
-    changeOrigin: true,
-  })
-);
-app.use(
-  "/pc/notification",
-  createProxyMiddleware({
-    target: process.env.NOTIFICATION_SERVICE_URL || "http://localhost:5005",
-    changeOrigin: true,
-  })
-);
-app.use(
-  "/pc/leave",
-  createProxyMiddleware({
-    target: process.env.LEAVE_SERVICE_URL || "http://localhost:5006",
-    changeOrigin: true,
-  })
-);
-app.use(
-  "/pc/attendance",
-  createProxyMiddleware({
-    target: process.env.ATTENDANCE_SERVICE_URL || "http://localhost:5007",
-    changeOrigin: true,
-  })
-);
-app.use(
-  "/pc/payroll",
-  createProxyMiddleware({
-    target: process.env.PAYROLL_SERVICE_URL || "http://localhost:5008",
-    changeOrigin: true,
-  })
-);
+    pathRewrite: { [`^${pathPrefix}`]: "" },
+  });
+
+app.use("/pc/auth", createProxy(process.env.AUTH_SERVICE_URL || "http://localhost:5001", "/pc/auth"));
+app.use("/pc/admin", createProxy(process.env.ADMIN_SERVICE_URL || "http://localhost:5002", "/pc/admin"));
+app.use("/pc/otp", createProxy(process.env.OTP_SERVICE_URL || "http://localhost:5003", "/pc/otp"));
+app.use("/pc/user", createProxy(process.env.USER_SERVICE_URL || "http://localhost:5004", "/pc/user"));
+app.use("/pc/notification", createProxy(process.env.NOTIFICATION_SERVICE_URL || "http://localhost:5005", "/pc/notification"));
+app.use("/pc/leave", createProxy(process.env.LEAVE_SERVICE_URL || "http://localhost:5006", "/pc/leave"));
+app.use("/pc/attendance", createProxy(process.env.ATTENDANCE_SERVICE_URL || "http://localhost:5007", "/pc/attendance"));
+app.use("/pc/payroll", createProxy(process.env.PAYROLL_SERVICE_URL || "http://localhost:5008", "/pc/payroll"));
+
 
 app.get("/health", (req, res) => {
   res.status(200).json({

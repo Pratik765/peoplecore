@@ -15,7 +15,10 @@ import {
   CalendarPlus,
 } from "lucide-react";
 
-const NOTIFICATION_API = "http://localhost:5005";
+import { API_BASE_URLS } from "../api/apiConfig";
+
+const NOTIFICATION_API = API_BASE_URLS.NOTIFICATION;
+
 
 // Map notification type to icon & color
 const getTypeConfig = (type, isLight) => {
