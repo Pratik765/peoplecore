@@ -1,0 +1,13 @@
+{
+  "name": "peoplecore-root",
+  "version": "1.0.0",
+  "description": "PeopleCore HRMS Microservices Monorepo",
+  "scripts": {
+    "install:all": "node scripts/install-all.js",
+    "build": "npm run install:all",
+    "start": "node scripts/start-production.js",
+    "seed": "node backend/auth-service/seed.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
