@@ -1,8 +1,9 @@
-// Centralized API configuration for PeopleCore microservices (Routed through API Gateway)
-
 let rawGatewayUrl = import.meta.env.VITE_API_GATEWAY_URL || "http://localhost:5000";
 if (rawGatewayUrl && !rawGatewayUrl.startsWith("http://") && !rawGatewayUrl.startsWith("https://")) {
   rawGatewayUrl = `https://${rawGatewayUrl}`;
+}
+if (rawGatewayUrl.includes("peoplecore-backend") && !rawGatewayUrl.includes(".onrender.com") && !rawGatewayUrl.includes("localhost")) {
+  rawGatewayUrl = `${rawGatewayUrl}.onrender.com`;
 }
 const GATEWAY_URL = rawGatewayUrl.replace(/\/+$/, "");
 

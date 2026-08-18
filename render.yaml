@@ -28,7 +28,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_GATEWAY_URL
-        fromService:
-          type: web
-          name: peoplecore-backend
-          property: host
+        value: https://peoplecore-backend-2emk.onrender.com
