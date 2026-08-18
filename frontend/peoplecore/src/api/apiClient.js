@@ -35,6 +35,11 @@ export const apiFetch = async (url, options = {}) => {
       throw new Error(errorMsg);
     }
 
+    // Guard against null/empty successful responses (e.g. Render free tier cold start)
+    if (data === null) {
+      throw new Error("Server returned an empty response. The server may be waking up — please try again in a few seconds.");
+    }
+
     return data;
   } catch (error) {
     console.error(`[API Error] ${url}:`, error.message);
