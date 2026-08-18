@@ -1,3 +1,4 @@
+require("dotenv").config();
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
@@ -40,9 +41,27 @@ const userProfileSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+/**
+ * Build per-service MongoDB URI from the base MONGO_URI env var.
+ * Supports both Atlas (mongodb+srv://) and local (mongodb://) URIs.
+ */
+function getServiceUri(baseUri, dbName) {
+  if (!baseUri) return `mongodb://127.0.0.1:27017/${dbName}`;
+  if (baseUri.includes("?")) {
+    const [prefix, query] = baseUri.split("?");
+    const clean = prefix.endsWith("/") ? prefix.slice(0, -1) : prefix;
+    return `${clean}/${dbName}?${query}`;
+  }
+  return baseUri.endsWith("/") ? `${baseUri}${dbName}` : `${baseUri}/${dbName}`;
+}
+
 async function seed() {
-  const authConn = await mongoose.createConnection("mongodb://127.0.0.1:27017/pc_auth_db").asPromise();
-  const userConn = await mongoose.createConnection("mongodb://127.0.0.1:27017/pc_user_db").asPromise();
+  const BASE_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017";
+  const authUri = getServiceUri(BASE_URI, "pc_auth_db");
+  const userUri = getServiceUri(BASE_URI, "pc_user_db");
+
+  const authConn = await mongoose.createConnection(authUri).asPromise();
+  const userConn = await mongoose.createConnection(userUri).asPromise();
 
   console.log("Connected to pc_auth_db and pc_user_db for seeding...");
 
