@@ -21,7 +21,7 @@ try {
 
 /**
  * Safely normalizes and formats a MongoDB connection string for a specific database.
- * Handles unencoded special characters in passwords (e.g. '@'), Atlas SRV URIs, and query params.
+ * Handles angle brackets <password>, unencoded special characters (e.g. '@'), and query params.
  */
 function getServiceMongoUri(rawUri, dbName) {
   if (!rawUri || rawUri.trim() === "") {
@@ -29,6 +29,11 @@ function getServiceMongoUri(rawUri, dbName) {
   }
 
   let uri = rawUri.trim();
+
+  // Auto-clean angle brackets: e.g. <MyPassword> or <MyPassword>@host
+  if (uri.includes("<") && uri.includes(">")) {
+    uri = uri.replace(/<([^>]+)>@?/g, (match, pass) => `${encodeURIComponent(pass)}@`);
+  }
 
   // If already contains a valid mongodb protocol
   if (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://")) {
@@ -62,8 +67,8 @@ function getServiceMongoUri(rawUri, dbName) {
 
       if (auth.includes(":")) {
         const firstColonIndex = auth.indexOf(":");
-        const user = decodeURIComponent(auth.substring(0, firstColonIndex));
-        const pass = decodeURIComponent(auth.substring(firstColonIndex + 1));
+        const user = decodeURIComponent(auth.substring(0, firstColonIndex).replace(/^[<]+|[>]+$/g, ""));
+        const pass = decodeURIComponent(auth.substring(firstColonIndex + 1).replace(/^[<]+|[>]+$/g, ""));
         const safeAuth = `${encodeURIComponent(user)}:${encodeURIComponent(pass)}`;
         return `${protocol}://${safeAuth}@${host}/${dbName}${query}`;
       }

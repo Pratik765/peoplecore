@@ -52,6 +52,10 @@ function getServiceUri(rawUri, dbName) {
 
   let uri = rawUri.trim();
 
+  if (uri.includes("<") && uri.includes(">")) {
+    uri = uri.replace(/<([^>]+)>@?/g, (match, pass) => `${encodeURIComponent(pass)}@`);
+  }
+
   if (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://")) {
     const protocolIndex = uri.indexOf("://");
     const protocol = uri.substring(0, protocolIndex);
@@ -81,8 +85,8 @@ function getServiceUri(rawUri, dbName) {
 
       if (auth.includes(":")) {
         const firstColonIndex = auth.indexOf(":");
-        const user = decodeURIComponent(auth.substring(0, firstColonIndex));
-        const pass = decodeURIComponent(auth.substring(firstColonIndex + 1));
+        const user = decodeURIComponent(auth.substring(0, firstColonIndex).replace(/^[<]+|[>]+$/g, ""));
+        const pass = decodeURIComponent(auth.substring(firstColonIndex + 1).replace(/^[<]+|[>]+$/g, ""));
         const safeAuth = `${encodeURIComponent(user)}:${encodeURIComponent(pass)}`;
         return `${protocol}://${safeAuth}@${host}/${dbName}${query}`;
       }
