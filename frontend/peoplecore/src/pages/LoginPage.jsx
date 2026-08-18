@@ -49,9 +49,17 @@ export function LoginPage() {
 
     setIsLoading(true);
     setErrorMsg("");
+    setSuccessMsg("");
 
     try {
+      // Show a message after 3s if still loading (server cold start)
+      const slowTimer = setTimeout(() => {
+        setSuccessMsg("⏳ Server is waking up, please wait...");
+      }, 3000);
+
       const res = await loginUser(state);
+      clearTimeout(slowTimer);
+
       setSuccessMsg("Signed in successfully! Redirecting...");
       localStorage.setItem("token", `Bearer ${res.token}`);
       reduxDispatch(userAction.login(res));
@@ -60,6 +68,7 @@ export function LoginPage() {
         navigate("/home");
       }, 500);
     } catch (err) {
+      setSuccessMsg("");
       setErrorMsg(err.message || "Unable to connect to auth server.");
     } finally {
       setIsLoading(false);
