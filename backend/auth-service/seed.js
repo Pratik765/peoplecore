@@ -43,16 +43,56 @@ const userProfileSchema = new mongoose.Schema(
 
 /**
  * Build per-service MongoDB URI from the base MONGO_URI env var.
- * Supports both Atlas (mongodb+srv://) and local (mongodb://) URIs.
+ * Safely handles unencoded passwords, Atlas SRV URIs, and query strings.
  */
-function getServiceUri(baseUri, dbName) {
-  if (!baseUri) return `mongodb://127.0.0.1:27017/${dbName}`;
-  if (baseUri.includes("?")) {
-    const [prefix, query] = baseUri.split("?");
-    const clean = prefix.endsWith("/") ? prefix.slice(0, -1) : prefix;
-    return `${clean}/${dbName}?${query}`;
+function getServiceUri(rawUri, dbName) {
+  if (!rawUri || rawUri.trim() === "") {
+    return `mongodb://127.0.0.1:27017/${dbName}`;
   }
-  return baseUri.endsWith("/") ? `${baseUri}${dbName}` : `${baseUri}/${dbName}`;
+
+  let uri = rawUri.trim();
+
+  if (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://")) {
+    const protocolIndex = uri.indexOf("://");
+    const protocol = uri.substring(0, protocolIndex);
+    const afterProtocol = uri.substring(protocolIndex + 3);
+
+    let pathAndQuery = "";
+    let authAndHost = afterProtocol;
+    if (afterProtocol.includes("/")) {
+      const slashIndex = afterProtocol.indexOf("/");
+      authAndHost = afterProtocol.substring(0, slashIndex);
+      pathAndQuery = afterProtocol.substring(slashIndex + 1);
+    } else if (afterProtocol.includes("?")) {
+      const questionIndex = afterProtocol.indexOf("?");
+      authAndHost = afterProtocol.substring(0, questionIndex);
+      pathAndQuery = "?" + afterProtocol.substring(questionIndex + 1);
+    }
+
+    let query = "";
+    if (pathAndQuery.includes("?")) {
+      query = pathAndQuery.substring(pathAndQuery.indexOf("?"));
+    }
+
+    if (authAndHost.includes("@")) {
+      const lastAtIndex = authAndHost.lastIndexOf("@");
+      const auth = authAndHost.substring(0, lastAtIndex);
+      const host = authAndHost.substring(lastAtIndex + 1);
+
+      if (auth.includes(":")) {
+        const firstColonIndex = auth.indexOf(":");
+        const user = decodeURIComponent(auth.substring(0, firstColonIndex));
+        const pass = decodeURIComponent(auth.substring(firstColonIndex + 1));
+        const safeAuth = `${encodeURIComponent(user)}:${encodeURIComponent(pass)}`;
+        return `${protocol}://${safeAuth}@${host}/${dbName}${query}`;
+      }
+      return `${protocol}://${auth}@${host}/${dbName}${query}`;
+    }
+
+    return `${protocol}://${authAndHost}/${dbName}${query}`;
+  }
+
+  return `mongodb://127.0.0.1:27017/${dbName}`;
 }
 
 async function seed() {

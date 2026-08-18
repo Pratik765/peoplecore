@@ -1,16 +1,24 @@
 const fs = require("fs");
 const path = require("path");
 
-const errorLogPath = path.join(__dirname, "../logs/error.log");
+const logDir = path.join(__dirname, "../logs");
+const errorLogPath = path.join(logDir, "error.log");
 
 const errorLogger = (err, req, res, next) => {
-  const log = `
+  try {
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+    const log = `
 [${new Date().toISOString()}]
 ${req.method} ${req.originalUrl}
 ${err.stack}
 ------------------------
 `;
-  fs.appendFileSync(errorLogPath, log);
+    fs.appendFileSync(errorLogPath, log);
+  } catch (logErr) {
+    console.error("Error logging failure:", logErr.message);
+  }
   next(err);
 };
 

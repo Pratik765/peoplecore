@@ -20,21 +20,60 @@ try {
 }
 
 /**
- * Formats a base MongoDB URI into a per-service database URI.
- * Handles both standard `mongodb://` and Atlas `mongodb+srv://` URIs.
+ * Safely normalizes and formats a MongoDB connection string for a specific database.
+ * Handles unencoded special characters in passwords (e.g. '@'), Atlas SRV URIs, and query params.
  */
-function getServiceMongoUri(baseUri, dbName) {
-  if (!baseUri) return `mongodb://127.0.0.1:27017/${dbName}`;
-  try {
-    if (baseUri.includes("?")) {
-      const [prefix, query] = baseUri.split("?");
-      const cleanPrefix = prefix.endsWith("/") ? prefix.slice(0, -1) : prefix;
-      return `${cleanPrefix}/${dbName}?${query}`;
-    }
-    return baseUri.endsWith("/") ? `${baseUri}${dbName}` : `${baseUri}/${dbName}`;
-  } catch {
-    return `${baseUri}/${dbName}`;
+function getServiceMongoUri(rawUri, dbName) {
+  if (!rawUri || rawUri.trim() === "") {
+    return `mongodb://127.0.0.1:27017/${dbName}`;
   }
+
+  let uri = rawUri.trim();
+
+  // If already contains a valid mongodb protocol
+  if (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://")) {
+    const protocolIndex = uri.indexOf("://");
+    const protocol = uri.substring(0, protocolIndex);
+    const afterProtocol = uri.substring(protocolIndex + 3);
+
+    // Split host and query
+    let pathAndQuery = "";
+    let authAndHost = afterProtocol;
+    if (afterProtocol.includes("/")) {
+      const slashIndex = afterProtocol.indexOf("/");
+      authAndHost = afterProtocol.substring(0, slashIndex);
+      pathAndQuery = afterProtocol.substring(slashIndex + 1);
+    } else if (afterProtocol.includes("?")) {
+      const questionIndex = afterProtocol.indexOf("?");
+      authAndHost = afterProtocol.substring(0, questionIndex);
+      pathAndQuery = "?" + afterProtocol.substring(questionIndex + 1);
+    }
+
+    let query = "";
+    if (pathAndQuery.includes("?")) {
+      query = pathAndQuery.substring(pathAndQuery.indexOf("?"));
+    }
+
+    // Handle authentication encoding (if password contains special characters like @)
+    if (authAndHost.includes("@")) {
+      const lastAtIndex = authAndHost.lastIndexOf("@");
+      const auth = authAndHost.substring(0, lastAtIndex);
+      const host = authAndHost.substring(lastAtIndex + 1);
+
+      if (auth.includes(":")) {
+        const firstColonIndex = auth.indexOf(":");
+        const user = decodeURIComponent(auth.substring(0, firstColonIndex));
+        const pass = decodeURIComponent(auth.substring(firstColonIndex + 1));
+        const safeAuth = `${encodeURIComponent(user)}:${encodeURIComponent(pass)}`;
+        return `${protocol}://${safeAuth}@${host}/${dbName}${query}`;
+      }
+      return `${protocol}://${auth}@${host}/${dbName}${query}`;
+    }
+
+    return `${protocol}://${authAndHost}/${dbName}${query}`;
+  }
+
+  return `mongodb://127.0.0.1:27017/${dbName}`;
 }
 
 const services = [

@@ -18,6 +18,17 @@ const createProxy = (target, pathPrefix) =>
     target,
     changeOrigin: true,
     pathRewrite: { [`^${pathPrefix}`]: "" },
+    on: {
+      error: (err, req, res) => {
+        console.error(`[Gateway Proxy Error] ${req.method} ${req.url} -> ${target}:`, err.message);
+        if (!res.headersSent) {
+          res.status(502).json({
+            message: `Service at ${pathPrefix} is currently unavailable. Please try again in a few seconds.`,
+            error: err.message,
+          });
+        }
+      },
+    },
   });
 
 app.use("/pc/auth", createProxy(process.env.AUTH_SERVICE_URL || "http://localhost:5001", "/pc/auth"));
