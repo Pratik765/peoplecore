@@ -49,6 +49,35 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toLocaleString(),
   });
 });
+
+app.get("/db-check", async (req, res) => {
+  const mongoose = require("mongoose");
+  const state = mongoose.connection.readyState;
+  const states = ["disconnected", "connected", "connecting", "disconnecting"];
+  
+  try {
+    const isConnected = state === 1;
+    let collections = [];
+    let userCount = 0;
+    if (isConnected) {
+      collections = (await mongoose.connection.db.listCollections().toArray()).map(c => c.name);
+      userCount = await user.countDocuments();
+    }
+    res.status(200).json({
+      dbStatus: states[state] || "unknown",
+      readyState: state,
+      mongoUri: (process.env.MONGO_URI || "default").replace(/:([^@]+)@/, ":****@"),
+      collections,
+      userCount,
+    });
+  } catch (err) {
+    res.status(500).json({
+      dbStatus: states[state] || "unknown",
+      error: err.message,
+      stack: err.stack,
+    });
+  }
+});
 //! Register
 app.post("/register", async (req, res) => {
   try {
