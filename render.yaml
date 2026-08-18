@@ -19,7 +19,6 @@ services:
   - type: web
     name: peoplecore-frontend
     runtime: static
-    plan: free
     rootDir: frontend/peoplecore
     buildCommand: npm install && npm run build
     staticPublishPath: dist
