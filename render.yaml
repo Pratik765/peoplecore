@@ -5,7 +5,7 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: npm run install:all && node backend/auth-service/seed.js
+    buildCommand: npm run install:all
     startCommand: npm start
     envVars:
       - key: NODE_ENV

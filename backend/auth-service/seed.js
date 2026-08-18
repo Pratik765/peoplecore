@@ -309,5 +309,5 @@ async function seed() {
 
 seed().catch((err) => {
   console.error("Seeding error:", err);
-  process.exit(1);
+  process.exit(0); // Don't crash startup if seed fails
 });

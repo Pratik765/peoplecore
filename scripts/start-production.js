@@ -1,4 +1,4 @@
-const { spawn } = require("child_process");
+const { spawn, execSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
@@ -6,6 +6,18 @@ const root = path.resolve(__dirname, "..");
 const JWT_SECRET = process.env.JWT_SECRET || "peoplecore_production_jwt_secret";
 const PUBLIC_PORT = process.env.PORT || 5000;
 const RAW_MONGO_URI = process.env.MONGO_URI || process.env.MONGO_BASE_URI || "mongodb://127.0.0.1:27017";
+
+// Run seed script on startup (safe - seed.js uses upsert/skip if admin exists)
+console.log("🌱 Running database seed...");
+try {
+  execSync(`node ${path.join(root, "backend/auth-service/seed.js")}`, {
+    stdio: "inherit",
+    env: { ...process.env, MONGO_URI: RAW_MONGO_URI },
+  });
+  console.log("✅ Database seed completed.");
+} catch (err) {
+  console.warn("⚠️  Seed script failed (this is OK if already seeded):", err.message);
+}
 
 /**
  * Formats a base MongoDB URI into a per-service database URI.
